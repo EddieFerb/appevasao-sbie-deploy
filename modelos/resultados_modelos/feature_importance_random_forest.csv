@@ -1,0 +1,6 @@
+rank,feature,importance
+1,concluintes_t,0.426112140337384
+2,inscritos_totais_t,0.15422262225084268
+3,matriculados_t,0.1531386971958592
+4,ingressantes_t,0.14468398989396072
+5,vagas_totais_t,0.12184255032195349

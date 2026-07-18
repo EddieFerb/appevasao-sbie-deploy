@@ -52,3 +52,7 @@ A formulacao temporal usa variaveis observadas no ano-base `t` para prever `taxa
 ## Escopo publico
 
 Os scripts completos, processamento, modelagem, analises e demais componentes cientificos internos nao integram este repositorio minimalista de deploy.
+
+## Artefatos visuais adicionais
+
+O app tambem exibe `modelos/resultados_modelos/feature_importance_random_forest.csv`, quando disponivel, como grafico de importancia de atributos consolidado do benchmark.
