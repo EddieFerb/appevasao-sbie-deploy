@@ -2,7 +2,9 @@
 
 Repositorio minimalista de deploy do AppEvasao para o Streamlit Community Cloud.
 
-URL pretendida: https://appevasao.streamlit.app/
+URL publica: https://appevasaosbie.streamlit.app/
+
+Subdominio alternativo pretendido originalmente: https://appevasao.streamlit.app/
 
 Main file path:
 
