@@ -1,0 +1,4 @@
+conjunto,threshold_binario,total_linhas,qtd_baixa_evasao,qtd_alta_evasao,prop_baixa_evasao,prop_alta_evasao,classe_majoritaria,baseline_majoritario_accuracy
+total_pos_dropna,0.5,310757,94384,216373,0.30372284453769344,0.6962771554623065,alta_evasao,0.6962771554623065
+treino,0.5,199429,62847,136582,0.3151347095958963,0.6848652904041037,alta_evasao,0.6848652904041037
+teste,0.5,111328,31537,79791,0.2832800373670595,0.7167199626329405,alta_evasao,0.7167199626329405
