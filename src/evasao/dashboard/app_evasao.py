@@ -387,11 +387,11 @@ st.markdown(
   <p>Uma revisão estruturada identificou lacunas. O benchmark temporal transforma essas lacunas em evidência pública: dados oficiais, separação cronológica, baselines explícitos e métricas versionadas.</p>
   <div class="chip-row">
     <span class="story-chip">88 estudos mapeados</span>
-    <span class="story-chip">INEP/MEC</span>
-    <span class="story-chip">Random Forest</span>
+    <span class="story-chip">Dados oficiais do INEP/MEC</span>
+    <span class="story-chip">Subgrupo RF — estudos com Random Forest</span>
     <span class="story-chip">Validação temporal</span>
-    <span class="story-chip">Anti-leakage</span>
-    <span class="story-chip">Artefato público</span>
+    <span class="story-chip">Prevenção de vazamento de dados</span>
+    <span class="story-chip">Artefato computacional de apoio à decisão</span>
   </div>
 </div>
 """,
@@ -421,6 +421,15 @@ with tabs[0]:
         unsafe_allow_html=True,
     )
     st.markdown(source_card_markup(), unsafe_allow_html=True)
+    st.markdown(
+        """
+<div class="glass-panel">
+  <div class="section-title">Como ler os termos</div>
+  <p>Neste painel, <strong>Universo A</strong> indica estudos sem uso explícito de dados INEP/MEC; <strong>Universo B</strong> indica estudos com uso explícito de dados INEP/MEC; e <strong>Subgrupo RF</strong> indica estudos que utilizaram Random Forest. Assim, INEP/MEC e Random Forest são dimensões analíticas distintas.</p>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
     st.markdown(value_flow_markup(), unsafe_allow_html=True)
 
 with tabs[1]:
@@ -429,13 +438,13 @@ with tabs[1]:
         [
             ("Registros importados", REVIEW_COUNTS["imported"], "entrada inicial da revisão"),
             ("Estudos incluídos", REVIEW_COUNTS["studies"], "corpus final"),
-            ("Universo A", REVIEW_COUNTS["universe_a"], "sem INEP/MEC explícito"),
-            ("Universo B", REVIEW_COUNTS["universe_b"], "com INEP/MEC explícito"),
+            ("Universo A — sem INEP/MEC explícito", REVIEW_COUNTS["universe_a"], "estudos sem uso explícito de dados INEP/MEC"),
+            ("Universo B — com INEP/MEC explícito", REVIEW_COUNTS["universe_b"], "estudos com uso explícito de dados INEP/MEC"),
         ],
         [
-            ("Random Forest", REVIEW_COUNTS["random_forest"], "modelo recorrente no corpus"),
+            ("Subgrupo RF — estudos com Random Forest", REVIEW_COUNTS["random_forest"], "estudos que utilizaram Random Forest"),
             ("Artefatos", REVIEW_COUNTS["artifacts"], "materiais computacionais disponíveis"),
-            ("INEP/MEC + RF", REVIEW_COUNTS["inep_rf"], "interseção metodológica"),
+            ("Subgrupo INEP/MEC + RF — estudos com INEP/MEC explícito e Random Forest", REVIEW_COUNTS["inep_rf"], "interseção metodológica"),
             ("Validação temporal", REVIEW_COUNTS["temporal_validation"], "aproximadamente 8,0% dos estudos"),
         ],
     ]:
@@ -458,10 +467,23 @@ with tabs[1]:
 
     c1, c2 = st.columns(2)
     with c1:
-        universe = pd.DataFrame([("Universo A", 78), ("Universo B", 10)], columns=["Universo", "Estudos"])
-        st.plotly_chart(apply_plot_style(px.bar(universe, x="Universo", y="Estudos", text="Estudos", title="Universo A vs Universo B")), width="stretch")
+        universe = pd.DataFrame(
+            [
+                ("Universo A — sem INEP/MEC explícito", 78),
+                ("Universo B — com INEP/MEC explícito", 10),
+            ],
+            columns=["Universo", "Estudos"],
+        )
+        st.plotly_chart(apply_plot_style(px.bar(universe, x="Universo", y="Estudos", text="Estudos", title="Universo A e Universo B por uso explícito de INEP/MEC")), width="stretch")
     with c2:
-        signals = pd.DataFrame([("Random Forest", 49), ("Artefato", 14), ("INEP/MEC + RF", 7)], columns=["Sinal", "Estudos"])
+        signals = pd.DataFrame(
+            [
+                ("Subgrupo RF — estudos com Random Forest", 49),
+                ("Artefato computacional de apoio à decisão", 14),
+                ("Subgrupo INEP/MEC + RF — estudos com INEP/MEC explícito e Random Forest", 7),
+            ],
+            columns=["Sinal", "Estudos"],
+        )
         st.plotly_chart(apply_plot_style(px.bar(signals, x="Sinal", y="Estudos", text="Estudos", title="Sinais de aproximação ao benchmark")), width="stretch")
 
 with tabs[2]:
@@ -479,7 +501,7 @@ with tabs[2]:
         ("Validação temporal", 7, "estudos"),
         ("Artefatos computacionais", 14, "estudos"),
         ("INEP/MEC explícito", 10, "estudos"),
-        ("INEP/MEC + RF", 7, "estudos"),
+        ("Subgrupo INEP/MEC + RF — estudos com INEP/MEC explícito e Random Forest", 7, "estudos"),
     ]
     for container, (label, value, hint) in zip(cols_gap, gap_cards):
         with container:
@@ -569,7 +591,7 @@ with tabs[5]:
     st.markdown(
         """
 <div class="glass-panel">
-  <p><strong>Moderado não é fraco:</strong> no contexto temporal e anti-leakage, o resultado é uma referência comparável e auditável, não uma promessa de acerto absoluto.</p>
+  <p><strong>Moderado não é fraco:</strong> no contexto temporal e de prevenção de vazamento de dados, o resultado é uma referência comparável e auditável, não uma promessa de acerto absoluto.</p>
 </div>
 """,
         unsafe_allow_html=True,
