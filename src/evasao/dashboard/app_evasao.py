@@ -82,7 +82,7 @@ h1, h2, h3, h4, p, li, label, span, div { letter-spacing: 0; }
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 28px;
-  padding: 2.2rem 2.2rem 1.55rem;
+  padding: 2rem;
   background: linear-gradient(135deg, rgba(255,255,255,.19), rgba(255,255,255,.07));
   box-shadow: 0 24px 70px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.28);
   backdrop-filter: blur(20px);
@@ -96,17 +96,41 @@ h1, h2, h3, h4, p, li, label, span, div { letter-spacing: 0; }
   background: linear-gradient(90deg, rgba(125,211,252,.30), rgba(142,230,201,.22), rgba(246,211,101,.18));
   filter: blur(26px);
 }
+.hero-layout {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(320px, .75fr);
+  gap: 1.35rem;
+  align-items: center;
+}
 .glass-hero .eyebrow { color: var(--green); font-size: .82rem; font-weight: 800; text-transform: uppercase; }
-.glass-hero h1 { max-width: 980px; margin: .35rem 0 .65rem; font-size: clamp(2.1rem, 4.2vw, 4.7rem); line-height: .98; color: var(--text); }
+.glass-hero h1 { max-width: 860px; margin: .35rem 0 .65rem; font-size: clamp(2rem, 3.8vw, 4.2rem); line-height: 1; color: var(--text); }
 .glass-hero p { max-width: 880px; margin: 0; color: var(--muted); font-size: 1.08rem; line-height: 1.55; }
+.hero-evidence {
+  display: grid;
+  gap: .55rem;
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 22px;
+  padding: .85rem;
+  background: rgba(255,255,255,.08);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
+  backdrop-filter: blur(14px);
+}
 .chip-row { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.05rem; }
 .story-chip {
   border: 1px solid rgba(255,255,255,.20);
   border-radius: 999px;
-  padding: .42rem .72rem;
+  padding: .48rem .78rem;
   color: rgba(255,255,255,.88);
   background: rgba(255,255,255,.09);
-  font-size: .82rem;
+  font-size: .84rem;
+  line-height: 1.25;
+}
+.hero-evidence .story-chip {
+  display: block;
+  width: 100%;
+  background: linear-gradient(135deg, rgba(255,255,255,.16), rgba(255,255,255,.07));
 }
 .section-title { margin: .6rem 0 .45rem; color: var(--text); font-size: 1.35rem; font-weight: 800; }
 .glass-panel, .source-card {
@@ -152,19 +176,31 @@ h1, h2, h3, h4, p, li, label, span, div { letter-spacing: 0; }
 .value-step .num { color: var(--green); font-size: .78rem; font-weight: 850; }
 .value-step strong { display: block; margin: .35rem 0 .3rem; color: var(--text); font-size: .95rem; }
 .value-step span { color: var(--muted); font-size: .83rem; line-height: 1.38; }
-.stTabs [data-baseweb="tab-list"] { gap: .35rem; }
+.stTabs [data-baseweb="tab-list"] { gap: .5rem; flex-wrap: wrap; }
 .stTabs [data-baseweb="tab"] {
   border-radius: 999px;
-  padding: .45rem .8rem;
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.11);
-  color: rgba(255,255,255,.78);
+  min-height: 2.7rem;
+  padding: .62rem 1rem;
+  background: linear-gradient(135deg, rgba(255,255,255,.13), rgba(255,255,255,.06));
+  border: 1px solid rgba(255,255,255,.18);
+  color: rgba(255,255,255,.84);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.16), 0 8px 22px rgba(0,0,0,.12);
+  transition: background .18s ease, border-color .18s ease, transform .18s ease;
 }
-.stTabs [aria-selected="true"] { background: rgba(125,211,252,.22); color: #fff; }
+.stTabs [data-baseweb="tab"]:hover {
+  background: rgba(125,211,252,.18);
+  border-color: rgba(125,211,252,.34);
+}
+.stTabs [aria-selected="true"] {
+  background: linear-gradient(135deg, rgba(125,211,252,.34), rgba(142,230,201,.18));
+  border-color: rgba(125,211,252,.52);
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.28), 0 10px 28px rgba(0,0,0,.20);
+}
 [data-testid="stDataFrame"] { border: 1px solid rgba(255,255,255,.15); border-radius: 18px; overflow: hidden; }
 a { color: var(--cyan); }
-@media (max-width: 1050px) { .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .value-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 680px) { .kpi-grid, .value-flow { grid-template-columns: 1fr; } .glass-hero { padding: 1.35rem; border-radius: 22px; } .kpi-value, .metric-value { font-size: 1.85rem; } }
+@media (max-width: 1050px) { .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .value-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); } .hero-layout { grid-template-columns: 1fr; } }
+@media (max-width: 680px) { .kpi-grid, .value-flow { grid-template-columns: 1fr; } .glass-hero { padding: 1.35rem; border-radius: 22px; } .kpi-value, .metric-value { font-size: 1.85rem; } .hero-evidence { padding: .65rem; } }
 </style>
 """,
     unsafe_allow_html=True,
@@ -382,16 +418,20 @@ predicoes = read_csv(PREDICOES_CSV)
 st.markdown(
     """
 <div class="glass-hero">
-  <div class="eyebrow">AppEvasão — Evidência SBIE 2026</div>
-  <h1>DA EVASÃO NO ENSINO SUPERIOR AO BENCHMARK TEMPORAL AUDITÁVEL</h1>
-  <p>Uma revisão estruturada identificou lacunas. O benchmark temporal transforma essas lacunas em evidência pública: dados oficiais, separação cronológica, baselines explícitos e métricas versionadas.</p>
-  <div class="chip-row">
-    <span class="story-chip">88 estudos mapeados</span>
-    <span class="story-chip">Dados oficiais do INEP/MEC</span>
-    <span class="story-chip">Subgrupo RF — estudos com Random Forest</span>
-    <span class="story-chip">Validação temporal</span>
-    <span class="story-chip">Prevenção de vazamento de dados</span>
-    <span class="story-chip">Artefato computacional de apoio à decisão</span>
+  <div class="hero-layout">
+    <div>
+      <div class="eyebrow">AppEvasão — Evidência SBIE 2026</div>
+      <h1>DA EVASÃO NO ENSINO SUPERIOR AO BENCHMARK TEMPORAL</h1>
+      <p>Uma revisão estruturada identificou lacunas. O benchmark temporal transforma essas lacunas em evidência pública: dados oficiais, separação cronológica, baselines explícitos e métricas versionadas.</p>
+    </div>
+    <div class="hero-evidence">
+      <span class="story-chip">Dados oficiais do INEP/MEC</span>
+      <span class="story-chip">88 estudos mapeados</span>
+      <span class="story-chip">Subgrupo RF — estudos com Random Forest</span>
+      <span class="story-chip">Validação temporal</span>
+      <span class="story-chip">Prevenção de vazamento de dados</span>
+      <span class="story-chip">Artefato computacional de apoio à decisão</span>
+    </div>
   </div>
 </div>
 """,
