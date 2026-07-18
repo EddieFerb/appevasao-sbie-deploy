@@ -1,8 +1,10 @@
-# AppEvasao - Evidencia SBIE 2026
+# AppEvasão — Evidência SBIE 2026
 
-Repositorio minimalista de deploy do AppEvasao para o Streamlit Community Cloud.
+Repositório minimalista de deploy do AppEvasão para o Streamlit Community Cloud.
 
-URL publica: https://appevasaosbie.streamlit.app/
+Aplicação pública: https://appevasaosbie.streamlit.app/
+
+Repositório: https://github.com/EddieFerb/appevasao-sbie-deploy
 
 Main file path:
 
@@ -18,21 +20,31 @@ streamlit run src/evasao/dashboard/app_evasao.py
 
 ## Objetivo
 
-Este app apresenta uma evidencia publica, pequena e auditavel do benchmark temporal reportado no artigo SBIE 2026 sobre evasao no Ensino Superior brasileiro com dados oficiais agregados do INEP/MEC.
+Este app apresenta uma evidência pública, pequena e auditável do benchmark temporal reportado no artigo SBIE 2026 sobre evasão no Ensino Superior brasileiro.
 
-A interface foi organizada como narrativa cientifica:
+A interface foi organizada como narrativa científica:
 
-- Historia
-- Mapa da Revisao
-- Lacuna Metodologica
+- História
+- Revisão em Números
+- Lacunas
 - Benchmark Temporal
-- Laboratorio de Threshold
-- Diagnosticos
+- Evidências Visuais
+- Diagnósticos e Limites
 - Artefatos
 
-## Fonte das metricas
+## Fonte dos dados
 
-As metricas principais sao fixas e lidas diretamente de:
+Fonte oficial: Microdados do Censo da Educação Superior — INEP/MEC. Os microdados públicos foram tratados e agregados para construção do benchmark temporal apresentado neste artigo.
+
+Link oficial:
+
+```text
+https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-da-educacao-superior
+```
+
+## Fonte das métricas
+
+As métricas principais são fixas e lidas diretamente de:
 
 ```text
 modelos/resultados_modelos/comparacao_baselines_temporal.csv
@@ -40,36 +52,38 @@ modelos/resultados_modelos/comparacao_baselines_temporal.csv
 
 Linha principal do artigo: `Random Forest`.
 
-Metricas regressivas fixas:
+Métricas regressivas fixas:
 
 ```text
-R2   = 0,3337
+R²   = 0,3337
 MAE  = 0,1778
 RMSE = 0,2331
 MSE  = 0,0543
 ```
 
-Metricas classificatorias auxiliares e simulacoes de threshold usam somente artefatos versionados de holdout. O app nao treina modelo, nao recalcula o benchmark regressivo e nao altera resultados.
+Métricas classificatórias auxiliares e simulações de threshold usam somente artefatos versionados de holdout. O app não treina modelo, não recalcula o benchmark regressivo e não altera resultados.
 
 ## Nota anti-leakage
 
-A formulacao temporal usa variaveis observadas no ano-base `t` para prever `taxa_evasao_alvo` em `t+1`. O modelo principal nao usa `taxa_evasao`, `taxa_conclusao` nem colunas derivadas diretamente do alvo como features. A avaliacao usa particionamento temporal, nao aleatorio.
+A formulação temporal usa variáveis observadas no ano-base `t` para prever `taxa_evasao_alvo` em `t+1`. O modelo principal não usa `taxa_evasao`, `taxa_conclusao` nem colunas derivadas diretamente do alvo como features. A avaliação usa particionamento temporal, não aleatório.
 
-## Escopo publico
+## Escopo público
 
-Este repositorio de deploy nao inclui:
+Este é um repositório minimalista de deploy. O pipeline científico completo não é publicado nesta versão por integrar artefato institucional em desenvolvimento. As métricas, variáveis, critérios de filtragem e divisão temporal estão descritos no artigo.
 
-- pipeline cientifico interno;
+Este repositório de deploy não inclui:
+
+- pipeline científico interno;
 - scripts de processamento;
 - scripts de modelagem;
-- analises auxiliares;
+- análises auxiliares;
 - modelos salvos;
 - dados brutos;
 - bases processadas completas.
 
-Ele contem apenas o app Streamlit e os artefatos consolidados necessarios para exposicao publica das evidencias.
+Ele contém apenas o app Streamlit e os artefatos consolidados necessários para exposição pública das evidências.
 
-## Artefatos incluidos
+## Artefatos incluídos
 
 ```text
 modelos/resultados_modelos/comparacao_baselines_temporal.csv

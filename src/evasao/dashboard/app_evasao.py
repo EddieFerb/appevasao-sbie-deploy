@@ -20,6 +20,8 @@ BALANCEAMENTO_MD = RESULTS_DIR / "diagnostico_balanceamento_classes.md"
 PREDICOES_CSV = RESULTS_DIR / "predicoes_holdout_random_forest_sbie.csv"
 
 PUBLIC_URL = "https://appevasaosbie.streamlit.app/"
+REPO_URL = "https://github.com/EddieFerb/appevasao-sbie-deploy"
+INEP_URL = "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-da-educacao-superior"
 
 EXPECTED = {
     "r2": 0.3337047249133319,
@@ -30,8 +32,8 @@ EXPECTED = {
 
 REVIEW_COUNTS = {
     "studies": 88,
-    "without_inep": 78,
-    "with_inep": 10,
+    "universe_a": 78,
+    "universe_b": 10,
     "random_forest": 49,
     "artifacts": 14,
     "inep_rf": 7,
@@ -39,56 +41,130 @@ REVIEW_COUNTS = {
     "without_artifacts": 74,
     "imported": 3827,
     "triage": 2350,
-    "fts": 119,
+    "full_text": 119,
 }
 
 st.set_page_config(
-    page_title="AppEvasao - Evidencia SBIE 2026",
-    page_icon="📊",
+    page_title="AppEvasão — Evidência SBIE 2026",
     layout="wide",
 )
 
 st.markdown(
     """
 <style>
-.main .block-container { padding-top: 1.5rem; padding-bottom: 3rem; }
-.hero {
-    border: 1px solid #d6dde6;
-    border-radius: 8px;
-    padding: 1.25rem 1.45rem;
-    background: #f8fafc;
-    margin-bottom: 1rem;
+:root {
+  --bg0: #07111f;
+  --bg1: #0d1c30;
+  --glass: rgba(255, 255, 255, .105);
+  --glass-strong: rgba(255, 255, 255, .16);
+  --line: rgba(255, 255, 255, .22);
+  --text: #f8fbff;
+  --muted: rgba(235, 244, 255, .76);
+  --soft: rgba(235, 244, 255, .58);
+  --cyan: #7dd3fc;
+  --blue: #60a5fa;
+  --green: #8ee6c9;
+  --amber: #f6d365;
 }
-.hero h1 { margin: 0 0 .35rem 0; font-size: 2rem; letter-spacing: 0; color: #122033; }
-.hero p { margin: 0; color: #425466; font-size: 1.02rem; }
-.metric-card {
-    border: 1px solid #d6dde6;
-    border-radius: 8px;
-    background: #ffffff;
-    padding: .95rem 1rem;
-    min-height: 122px;
-    box-shadow: 0 1px 2px rgba(16, 24, 40, .05);
+.stApp {
+  color: var(--text);
+  background:
+    radial-gradient(circle at 18% 12%, rgba(96, 165, 250, .30), transparent 30rem),
+    radial-gradient(circle at 80% 5%, rgba(142, 230, 201, .18), transparent 26rem),
+    radial-gradient(circle at 54% 78%, rgba(246, 211, 101, .11), transparent 28rem),
+    linear-gradient(135deg, var(--bg0), var(--bg1) 48%, #101828);
 }
-.metric-card .label { color: #4e6478; font-size: .86rem; font-weight: 700; margin-bottom: .32rem; }
-.metric-card .value { color: #14243a; font-size: 2.05rem; font-weight: 800; line-height: 1.05; white-space: nowrap; }
-.metric-card .hint { color: #5f7185; font-size: .8rem; margin-top: .42rem; }
-.story-box {
-    border-left: 4px solid #1f77b4;
-    background: #f5f9fd;
-    padding: .85rem 1rem;
-    border-radius: 6px;
-    color: #263b50;
-    margin-bottom: 1rem;
+.main .block-container { padding-top: 1.35rem; padding-bottom: 3rem; max-width: 1280px; }
+section[data-testid="stSidebar"] { background: rgba(6, 14, 27, .76); border-right: 1px solid rgba(255, 255, 255, .10); }
+h1, h2, h3, h4, p, li, label, span, div { letter-spacing: 0; }
+.glass-hero {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  padding: 2.2rem 2.2rem 1.55rem;
+  background: linear-gradient(135deg, rgba(255,255,255,.19), rgba(255,255,255,.07));
+  box-shadow: 0 24px 70px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.28);
+  backdrop-filter: blur(20px);
+  margin-bottom: 1.2rem;
 }
-.step-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .65rem; margin: .4rem 0 1rem 0; }
-.step-card { border: 1px solid #d8e1ea; border-radius: 8px; padding: .8rem; background: #fbfdff; min-height: 98px; }
-.step-card strong { display: block; color: #13283f; font-size: .9rem; margin-bottom: .25rem; }
-.step-card span { color: #52677a; font-size: .79rem; }
-.small-muted { color: #60758a; font-size: .9rem; }
-@media (max-width: 900px) {
-  .step-grid { grid-template-columns: 1fr; }
-  .metric-card .value { font-size: 1.65rem; }
+.glass-hero:after {
+  content: "";
+  position: absolute;
+  inset: auto -12% -35% 28%;
+  height: 10rem;
+  background: linear-gradient(90deg, rgba(125,211,252,.30), rgba(142,230,201,.22), rgba(246,211,101,.18));
+  filter: blur(26px);
 }
+.glass-hero .eyebrow { color: var(--green); font-size: .82rem; font-weight: 800; text-transform: uppercase; }
+.glass-hero h1 { max-width: 980px; margin: .35rem 0 .65rem; font-size: clamp(2.1rem, 4.2vw, 4.7rem); line-height: .98; color: var(--text); }
+.glass-hero p { max-width: 880px; margin: 0; color: var(--muted); font-size: 1.08rem; line-height: 1.55; }
+.chip-row { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.05rem; }
+.story-chip {
+  border: 1px solid rgba(255,255,255,.20);
+  border-radius: 999px;
+  padding: .42rem .72rem;
+  color: rgba(255,255,255,.88);
+  background: rgba(255,255,255,.09);
+  font-size: .82rem;
+}
+.section-title { margin: .6rem 0 .45rem; color: var(--text); font-size: 1.35rem; font-weight: 800; }
+.glass-panel, .source-card {
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 1.05rem 1.15rem;
+  background: rgba(255,255,255,.095);
+  box-shadow: 0 18px 50px rgba(0,0,0,.22);
+  backdrop-filter: blur(16px);
+  margin-bottom: 1rem;
+}
+.glass-panel p, .source-card p { color: var(--muted); margin: 0; line-height: 1.55; }
+.evidence-note {
+  border-left: 4px solid var(--green);
+  border-radius: 18px;
+  padding: .9rem 1rem;
+  background: rgba(142,230,201,.10);
+  color: rgba(248,251,255,.90);
+  margin: .8rem 0 1rem;
+}
+.kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .8rem; margin: .7rem 0 1.1rem; }
+.kpi-card, .metric-card, .governance-card, .roadmap-card {
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 22px;
+  padding: 1rem;
+  background: linear-gradient(150deg, rgba(255,255,255,.15), rgba(255,255,255,.06));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.20), 0 16px 38px rgba(0,0,0,.18);
+  backdrop-filter: blur(14px);
+  min-height: 126px;
+}
+.kpi-label, .metric-label { color: var(--soft); font-size: .82rem; font-weight: 750; text-transform: uppercase; }
+.kpi-value, .metric-value { color: var(--text); font-size: 2.25rem; font-weight: 850; line-height: 1.08; margin-top: .2rem; white-space: nowrap; }
+.kpi-hint, .metric-hint { color: var(--muted); font-size: .84rem; margin-top: .42rem; line-height: 1.35; }
+.metric-value { color: var(--cyan); }
+.value-flow { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: .72rem; margin: .8rem 0 1.2rem; }
+.value-step {
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 20px;
+  padding: .9rem;
+  background: rgba(255,255,255,.085);
+  min-height: 160px;
+}
+.value-step .num { color: var(--green); font-size: .78rem; font-weight: 850; }
+.value-step strong { display: block; margin: .35rem 0 .3rem; color: var(--text); font-size: .95rem; }
+.value-step span { color: var(--muted); font-size: .83rem; line-height: 1.38; }
+.stTabs [data-baseweb="tab-list"] { gap: .35rem; }
+.stTabs [data-baseweb="tab"] {
+  border-radius: 999px;
+  padding: .45rem .8rem;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.11);
+  color: rgba(255,255,255,.78);
+}
+.stTabs [aria-selected="true"] { background: rgba(125,211,252,.22); color: #fff; }
+[data-testid="stDataFrame"] { border: 1px solid rgba(255,255,255,.15); border-radius: 18px; overflow: hidden; }
+a { color: var(--cyan); }
+@media (max-width: 1050px) { .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .value-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 680px) { .kpi-grid, .value-flow { grid-template-columns: 1fr; } .glass-hero { padding: 1.35rem; border-radius: 22px; } .kpi-value, .metric-value { font-size: 1.85rem; } }
 </style>
 """,
     unsafe_allow_html=True,
@@ -110,7 +186,7 @@ def read_csv(path: Path) -> pd.DataFrame | None:
 def load_benchmark() -> pd.DataFrame:
     df = read_csv(BENCHMARK_CSV)
     if df is None:
-        raise FileNotFoundError(f"Artefato nao encontrado: {BENCHMARK_CSV}")
+        raise FileNotFoundError(f"Artefato não encontrado: {BENCHMARK_CSV}")
     return df
 
 
@@ -120,7 +196,7 @@ def random_forest_row(df: pd.DataFrame) -> pd.Series:
         axis=1,
     )
     if not mask.any():
-        raise ValueError("Linha Random Forest nao encontrada no CSV do benchmark.")
+        raise ValueError("Linha Random Forest não encontrada no CSV do benchmark.")
     return df[mask].iloc[0]
 
 
@@ -132,22 +208,23 @@ def fmt_int(value: object) -> str:
     return f"{int(float(value)):,}".replace(",", ".")
 
 
-def metric_card(label: str, value: object, hint: str, digits: int = 4) -> str:
+def kpi_card(label: str, value: object, hint: str, numeric: bool = True) -> str:
+    formatted = fmt_int(value) if numeric else str(value)
     return f"""
-<div class="metric-card">
-  <div class="label">{label}</div>
-  <div class="value">{fmt_decimal(value, digits)}</div>
-  <div class="hint">{hint}</div>
+<div class="kpi-card">
+  <div class="kpi-label">{label}</div>
+  <div class="kpi-value">{formatted}</div>
+  <div class="kpi-hint">{hint}</div>
 </div>
 """
 
 
-def count_card(label: str, value: object, hint: str) -> str:
+def metric_card(label: str, value: object, hint: str, digits: int = 4) -> str:
     return f"""
 <div class="metric-card">
-  <div class="label">{label}</div>
-  <div class="value">{fmt_int(value)}</div>
-  <div class="hint">{hint}</div>
+  <div class="metric-label">{label}</div>
+  <div class="metric-value">{fmt_decimal(value, digits)}</div>
+  <div class="metric-hint">{hint}</div>
 </div>
 """
 
@@ -188,32 +265,41 @@ def baseline_table(df: pd.DataFrame, cols: dict[str, str]) -> pd.DataFrame:
 def highlighted_baseline_table(table: pd.DataFrame) -> object:
     def highlight_rf(row: pd.Series) -> list[str]:
         is_rf = row.astype(str).str.contains("Random Forest", case=False, na=False).any()
-        return ["background-color: #eaf4ff; font-weight: 700" if is_rf else "" for _ in row]
+        return ["background-color: #e7f5ff; font-weight: 700" if is_rf else "" for _ in row]
 
     return table.style.apply(highlight_rf, axis=1).format(precision=4, thousands=".", decimal=",")
 
 
 def download_artifact(path: Path, label: str, mime: str) -> None:
     if path.exists():
-        st.download_button(
-            label=label,
-            data=path.read_bytes(),
-            file_name=path.name,
-            mime=mime,
-            width="stretch",
-        )
+        st.download_button(label=label, data=path.read_bytes(), file_name=path.name, mime=mime, width="stretch")
     else:
-        st.caption(f"Indisponivel: {path.relative_to(ROOT)}")
+        st.caption(f"Indisponível: {path.relative_to(ROOT)}")
 
 
-def method_flow_markup() -> str:
-    return """
-<div class="step-grid">
-  <div class="step-card"><strong>INEP/MEC</strong><span>Dados oficiais agregados do Censo da Educacao Superior.</span></div>
-  <div class="step-card"><strong>Features em t</strong><span>Ingressantes, concluintes, matriculados, vagas e inscritos.</span></div>
-  <div class="step-card"><strong>Alvo em t+1</strong><span>taxa_evasao_alvo deslocada temporalmente.</span></div>
-  <div class="step-card"><strong>Holdout temporal</strong><span>Treino ate 2018. Teste apos 2018.</span></div>
-  <div class="step-card"><strong>Benchmark fixo</strong><span>Random Forest comparada a baselines versionados.</span></div>
+def value_flow_markup() -> str:
+    steps = [
+        ("01", "Fonte oficial", "Microdados do Censo da Educação Superior — INEP/MEC."),
+        ("02", "Agregação e preparação", "Dados tratados e agregados para modelagem temporal."),
+        ("03", "Formulação temporal", "Variáveis observadas em t → taxa_evasao_alvo em t+1."),
+        ("04", "Validação", "Treino: ano_base <= 2018. Teste: ano_base > 2018."),
+        ("05", "Comparação", "Média histórica, Persistência, Regressão Linear e Random Forest."),
+        ("06", "Evidência", "Métricas fixas lidas dos artefatos versionados."),
+    ]
+    cards = "\n".join(
+        f'<div class="value-step"><div class="num">{num}</div><strong>{title}</strong><span>{body}</span></div>'
+        for num, title, body in steps
+    )
+    return f'<div class="value-flow">{cards}</div>'
+
+
+def source_card_markup() -> str:
+    return f"""
+<div class="source-card">
+  <div class="section-title">Fonte dos dados</div>
+  <p><strong>Fonte oficial:</strong> Microdados do Censo da Educação Superior — INEP/MEC.
+  Os microdados públicos foram tratados e agregados para construção do benchmark temporal apresentado neste artigo.</p>
+  <p style="margin-top:.65rem;"><a href="{INEP_URL}" target="_blank">Página oficial dos microdados do Censo da Educação Superior</a></p>
 </div>
 """
 
@@ -229,18 +315,7 @@ def threshold_metrics(pred: pd.DataFrame, threshold: float) -> dict[str, float]:
     precision = tp / max(tp + fp, 1)
     recall = tp / max(tp + fn, 1)
     f1 = 2 * precision * recall / max(precision + recall, 1e-12)
-    return {
-        "accuracy": (tp + tn) / total,
-        "precision": precision,
-        "recall": recall,
-        "f1": f1,
-        "tn": tn,
-        "fp": fp,
-        "fn": fn,
-        "tp": tp,
-        "positivos_reais": int(real.sum()),
-        "positivos_preditos": int(pred_cls.sum()),
-    }
+    return {"accuracy": (tp + tn) / total, "precision": precision, "recall": recall, "f1": f1, "tn": tn, "fp": fp, "fn": fn, "tp": tp}
 
 
 def render_confusion_matrix(values: dict[str, float], title: str) -> None:
@@ -253,32 +328,34 @@ def render_confusion_matrix(values: dict[str, float], title: str) -> None:
             y=["Real: baixa", "Real: alta"],
             text=text,
             texttemplate="%{text}",
-            colorscale="Blues",
+            colorscale="Teal",
             showscale=False,
         )
     )
-    fig.update_layout(title=title, margin=dict(l=20, r=20, t=60, b=20), height=410)
+    fig.update_layout(title=title, template="plotly_dark", margin=dict(l=20, r=20, t=60, b=20), height=410)
     st.plotly_chart(fig, width="stretch")
 
 
-st.sidebar.title("AppEvasao")
-st.sidebar.markdown("**Evidencia SBIE 2026**")
-st.sidebar.markdown("URL publica:")
-st.sidebar.code(PUBLIC_URL)
-st.sidebar.markdown("Repositorio:")
-st.sidebar.code("EddieFerb/appevasao-sbie-deploy")
-st.sidebar.markdown("Main file path:")
-st.sidebar.code("src/evasao/dashboard/app_evasao.py")
+def apply_plot_style(fig: go.Figure) -> go.Figure:
+    fig.update_layout(
+        template="plotly_dark",
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font_color="#edf6ff",
+        margin=dict(l=20, r=20, t=60, b=20),
+    )
+    return fig
 
-st.markdown(
-    """
-<div class="hero">
-  <h1>AppEvasao - Evidencia SBIE 2026</h1>
-  <p>Uma narrativa publica, auditavel e anti-leakage do benchmark temporal de evasao no Ensino Superior brasileiro.</p>
-</div>
-""",
-    unsafe_allow_html=True,
-)
+
+st.sidebar.title("AppEvasão")
+st.sidebar.markdown("**Evidência SBIE 2026**")
+st.sidebar.markdown("Aplicação:")
+st.sidebar.link_button("Abrir app público", PUBLIC_URL)
+st.sidebar.markdown("Repositório:")
+st.sidebar.link_button("GitHub", REPO_URL)
+st.sidebar.markdown("Fonte: **INEP/MEC — Censo da Educação Superior**")
+st.sidebar.link_button("Link oficial dos microdados", INEP_URL)
+st.sidebar.caption("Main file path: `src/evasao/dashboard/app_evasao.py`")
 
 try:
     df = load_benchmark()
@@ -286,7 +363,7 @@ try:
     rf = random_forest_row(df)
     missing = [name for name in ["modelo", "r2", "mae", "rmse", "mse"] if name not in cols]
     if missing:
-        st.error(f"Colunas obrigatorias ausentes no CSV: {', '.join(missing)}")
+        st.error(f"Colunas obrigatórias ausentes no CSV: {', '.join(missing)}")
         st.stop()
 except Exception as exc:
     st.error(str(exc))
@@ -294,7 +371,7 @@ except Exception as exc:
 
 warnings = validate_expected(rf, cols)
 if warnings:
-    st.warning("Divergencia em relacao aos valores auditados: " + "; ".join(warnings))
+    st.warning("Divergência em relação aos valores auditados: " + "; ".join(warnings))
 
 table = baseline_table(df, cols)
 feature_importance = read_csv(FEATURE_IMPORTANCE_CSV)
@@ -302,14 +379,33 @@ completude = read_csv(COMPLETUDE_CSV)
 balanceamento = read_csv(BALANCEAMENTO_CSV)
 predicoes = read_csv(PREDICOES_CSV)
 
+st.markdown(
+    """
+<div class="glass-hero">
+  <div class="eyebrow">AppEvasão — Evidência SBIE 2026</div>
+  <h1>DA EVASÃO NO ENSINO SUPERIOR AO BENCHMARK TEMPORAL AUDITÁVEL</h1>
+  <p>Uma revisão estruturada identificou lacunas. O benchmark temporal transforma essas lacunas em evidência pública: dados oficiais, separação cronológica, baselines explícitos e métricas versionadas.</p>
+  <div class="chip-row">
+    <span class="story-chip">88 estudos mapeados</span>
+    <span class="story-chip">INEP/MEC</span>
+    <span class="story-chip">Random Forest</span>
+    <span class="story-chip">Validação temporal</span>
+    <span class="story-chip">Anti-leakage</span>
+    <span class="story-chip">Artefato público</span>
+  </div>
+</div>
+""",
+    unsafe_allow_html=True,
+)
+
 tabs = st.tabs(
     [
         "História",
-        "Mapa da Revisão",
-        "Lacuna Metodológica",
+        "Revisão em Números",
+        "Lacunas",
         "Benchmark Temporal",
-        "Laboratório de Threshold",
-        "Diagnósticos",
+        "Evidências Visuais",
+        "Diagnósticos e Limites",
         "Artefatos",
     ]
 )
@@ -317,241 +413,213 @@ tabs = st.tabs(
 with tabs[0]:
     st.markdown(
         """
-<div class="story-box">
-A evasao no Ensino Superior brasileiro nao e apenas uma taxa administrativa:
-ela concentra perdas de trajetoria estudantil, capacidade institucional e
-politica publica. O AppEvasao apresenta a resposta experimental do artigo:
-um benchmark temporal pequeno, rastreavel e comparavel, construido sobre dados
-oficiais e sem treinamento em tempo de execucao.
+<div class="glass-panel">
+  <div class="section-title">Tese da página</div>
+  <p>O objetivo não é prometer uma solução universal para evasão, mas tornar visível, verificável e discutível uma formulação temporal baseada em dados oficiais, baselines explícitos e métricas versionadas.</p>
 </div>
 """,
         unsafe_allow_html=True,
     )
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        st.markdown(count_card("Estudos incluidos", REVIEW_COUNTS["studies"], "base da revisao de escopo"), unsafe_allow_html=True)
-    with c2:
-        st.markdown(count_card("Estudos com INEP explicito", REVIEW_COUNTS["with_inep"], "uso declarado de dados oficiais"), unsafe_allow_html=True)
-    with c3:
-        st.markdown(count_card("Validacao temporal", REVIEW_COUNTS["temporal_validation"], "aprox. 8,0% da amostra"), unsafe_allow_html=True)
-
-    st.markdown("### A tese operacional")
-    st.markdown(method_flow_markup(), unsafe_allow_html=True)
-    st.write(
-        "O app fixa a pergunta empirica: usando variaveis observadas no ano-base `t`, "
-        "quao bem um modelo consegue estimar `taxa_evasao_alvo` no ano `t+1`?"
-    )
+    st.markdown(source_card_markup(), unsafe_allow_html=True)
+    st.markdown(value_flow_markup(), unsafe_allow_html=True)
 
 with tabs[1]:
-    st.markdown("### Mapa da revisão de escopo")
-    c1, c2, c3, c4 = st.columns(4)
+    st.markdown('<div class="section-title">Revisão em Números</div>', unsafe_allow_html=True)
+    for row in [
+        [
+            ("Registros importados", REVIEW_COUNTS["imported"], "entrada inicial da revisão"),
+            ("Estudos incluídos", REVIEW_COUNTS["studies"], "corpus final"),
+            ("Universo A", REVIEW_COUNTS["universe_a"], "sem INEP/MEC explícito"),
+            ("Universo B", REVIEW_COUNTS["universe_b"], "com INEP/MEC explícito"),
+        ],
+        [
+            ("Random Forest", REVIEW_COUNTS["random_forest"], "modelo recorrente no corpus"),
+            ("Artefatos", REVIEW_COUNTS["artifacts"], "materiais computacionais disponíveis"),
+            ("INEP/MEC + RF", REVIEW_COUNTS["inep_rf"], "interseção metodológica"),
+            ("Validação temporal", REVIEW_COUNTS["temporal_validation"], "aproximadamente 8,0% dos estudos"),
+        ],
+    ]:
+        cols_cards = st.columns(4)
+        for container, (label, value, hint) in zip(cols_cards, row):
+            with container:
+                st.markdown(kpi_card(label, value, hint), unsafe_allow_html=True)
+
+    funnel = pd.DataFrame(
+        [
+            ("Importados", REVIEW_COUNTS["imported"]),
+            ("Triagem", REVIEW_COUNTS["triage"]),
+            ("Full text", REVIEW_COUNTS["full_text"]),
+            ("Incluídos", REVIEW_COUNTS["studies"]),
+        ],
+        columns=["Etapa", "Registros"],
+    )
+    fig = px.funnel(funnel, x="Registros", y="Etapa", title="Funil da revisão estruturada")
+    st.plotly_chart(apply_plot_style(fig), width="stretch")
+
+    c1, c2 = st.columns(2)
     with c1:
-        st.markdown(count_card("Registros importados", REVIEW_COUNTS["imported"], "entrada inicial"), unsafe_allow_html=True)
+        universe = pd.DataFrame([("Universo A", 78), ("Universo B", 10)], columns=["Universo", "Estudos"])
+        st.plotly_chart(apply_plot_style(px.bar(universe, x="Universo", y="Estudos", text="Estudos", title="Universo A vs Universo B")), width="stretch")
     with c2:
-        st.markdown(count_card("Triagem", REVIEW_COUNTS["triage"], "registros avaliados"), unsafe_allow_html=True)
-    with c3:
-        st.markdown(count_card("Texto completo", REVIEW_COUNTS["fts"], "FTS avaliados"), unsafe_allow_html=True)
-    with c4:
-        st.markdown(count_card("Incluidos", REVIEW_COUNTS["studies"], "corpus final"), unsafe_allow_html=True)
-
-    review_df = pd.DataFrame(
-        [
-            ("Sem INEP/MEC explicito", REVIEW_COUNTS["without_inep"]),
-            ("Com INEP/MEC explicito", REVIEW_COUNTS["with_inep"]),
-            ("Usam Random Forest", REVIEW_COUNTS["random_forest"]),
-            ("Trazem artefato", REVIEW_COUNTS["artifacts"]),
-            ("INEP/MEC + Random Forest", REVIEW_COUNTS["inep_rf"]),
-            ("Validacao temporal", REVIEW_COUNTS["temporal_validation"]),
-        ],
-        columns=["Categoria", "Estudos"],
-    )
-    fig = px.bar(review_df, x="Categoria", y="Estudos", text="Estudos", title="Sinais metodologicos encontrados na literatura")
-    fig.update_layout(showlegend=False, margin=dict(l=20, r=20, t=60, b=20))
-    st.plotly_chart(fig, width="stretch")
-
-    artifact_df = pd.DataFrame(
-        [
-            ("Com artefato", REVIEW_COUNTS["artifacts"]),
-            ("Sem artefato", REVIEW_COUNTS["without_artifacts"]),
-        ],
-        columns=["Grupo", "Estudos"],
-    )
-    st.plotly_chart(
-        px.pie(artifact_df, names="Grupo", values="Estudos", title="Disponibilidade de artefatos na amostra"),
-        width="stretch",
-    )
+        signals = pd.DataFrame([("Random Forest", 49), ("Artefato", 14), ("INEP/MEC + RF", 7)], columns=["Sinal", "Estudos"])
+        st.plotly_chart(apply_plot_style(px.bar(signals, x="Sinal", y="Estudos", text="Estudos", title="Sinais de aproximação ao benchmark")), width="stretch")
 
 with tabs[2]:
-    st.markdown("### Lacuna metodológica")
     st.markdown(
         """
-<div class="story-box">
-A revisao indica um campo produtivo, mas fragmentado: muitos trabalhos usam
-classificacao e modelos populares, poucos deixam artefatos auditaveis e poucos
-validam o desempenho respeitando a ordem temporal. A contribuicao do app e
-exibir um benchmark reproduzivel como evidencia publica, nao uma promessa de
-predicao perfeita.
+<div class="glass-panel">
+  <div class="section-title">Lacunas metodológicas</div>
+  <p>A revisão mostrou que a literatura brasileira é rica em experimentos, mas ainda apresenta baixa padronização comparativa: poucos estudos usam INEP/MEC explicitamente, poucos usam validação temporal e poucos convertem modelos em artefatos computacionais.</p>
 </div>
 """,
         unsafe_allow_html=True,
     )
-    gap_df = pd.DataFrame(
-        [
-            ("Random Forest na literatura", REVIEW_COUNTS["random_forest"]),
-            ("Artefatos disponiveis", REVIEW_COUNTS["artifacts"]),
-            ("Validacao temporal", REVIEW_COUNTS["temporal_validation"]),
-            ("Metricas MAE", 4),
-            ("Metricas MSE", 3),
-            ("Metricas RMSE", 1),
-            ("Metricas R2/Pseudo-R2", 1),
-        ],
-        columns=["Evidencia", "Quantidade"],
+    cols_gap = st.columns(4)
+    gap_cards = [
+        ("Validação temporal", 7, "estudos"),
+        ("Artefatos computacionais", 14, "estudos"),
+        ("INEP/MEC explícito", 10, "estudos"),
+        ("INEP/MEC + RF", 7, "estudos"),
+    ]
+    for container, (label, value, hint) in zip(cols_gap, gap_cards):
+        with container:
+            st.markdown(kpi_card(label, value, hint), unsafe_allow_html=True)
+
+    validations = pd.DataFrame(
+        [("Cross-validation", 31), ("Holdout", 21), ("Temporal", 7), ("Não clara", 29)],
+        columns=["Validação", "Estudos"],
     )
-    fig = px.bar(gap_df, y="Evidencia", x="Quantidade", orientation="h", text="Quantidade", title="O que aparece pouco no corpus")
-    fig.update_layout(margin=dict(l=20, r=20, t=60, b=20))
-    st.plotly_chart(fig, width="stretch")
+    metrics = pd.DataFrame(
+        [("Accuracy", 40), ("Precision", 22), ("Recall", 24), ("F1", 27), ("MAE", 4), ("MSE", 3), ("RMSE", 1), ("R²", 1)],
+        columns=["Métrica", "Estudos"],
+    )
+    targets = pd.DataFrame(
+        [("Risco de evasão", 32), ("Permanência/retenção", 18), ("Evasão binária", 29), ("Taxa de evasão", 9)],
+        columns=["Tipo de alvo", "Estudos"],
+    )
+    st.plotly_chart(apply_plot_style(px.bar(validations, x="Validação", y="Estudos", text="Estudos", title="Estratégias de validação reportadas")), width="stretch")
+    c1, c2 = st.columns(2)
+    with c1:
+        st.plotly_chart(apply_plot_style(px.bar(metrics, x="Métrica", y="Estudos", text="Estudos", title="Métricas reportadas")), width="stretch")
+    with c2:
+        st.plotly_chart(apply_plot_style(px.bar(targets, x="Tipo de alvo", y="Estudos", text="Estudos", title="Tipos de alvo")), width="stretch")
 
 with tabs[3]:
-    st.markdown("### Benchmark temporal fixo")
-    c1, c2, c3, c4 = st.columns(4)
-    with c1:
-        st.markdown(metric_card("R²", rf[cols["r2"]], "maior e melhor"), unsafe_allow_html=True)
-    with c2:
-        st.markdown(metric_card("MAE", rf[cols["mae"]], "menor e melhor"), unsafe_allow_html=True)
-    with c3:
-        st.markdown(metric_card("RMSE", rf[cols["rmse"]], "menor e melhor"), unsafe_allow_html=True)
-    with c4:
-        st.markdown(metric_card("MSE", rf[cols["mse"]], "menor e melhor"), unsafe_allow_html=True)
+    st.markdown('<div class="section-title">Benchmark Temporal</div>', unsafe_allow_html=True)
+    st.markdown(value_flow_markup(), unsafe_allow_html=True)
+    metric_cols = st.columns(4)
+    metric_specs = [("R²", "r2", "maior é melhor"), ("MAE", "mae", "menor é melhor"), ("RMSE", "rmse", "menor é melhor"), ("MSE", "mse", "menor é melhor")]
+    for container, (label, key, hint) in zip(metric_cols, metric_specs):
+        with container:
+            st.markdown(metric_card(label, rf[cols[key]], hint), unsafe_allow_html=True)
+    st.markdown('<div class="evidence-note">As métricas desta seção são fixas e foram lidas diretamente de <code>comparacao_baselines_temporal.csv</code>.</div>', unsafe_allow_html=True)
+    st.dataframe(highlighted_baseline_table(table), width="stretch", hide_index=True)
 
+with tabs[4]:
+    st.markdown('<div class="section-title">Evidências Visuais</div>', unsafe_allow_html=True)
     plot_df = df.copy()
     for name in ["r2", "mae", "rmse", "mse", "accuracy", "precision", "recall", "f1"]:
         if name in cols:
             plot_df[cols[name]] = pd.to_numeric(plot_df[cols[name]], errors="coerce")
 
-    fig_r2 = px.bar(
-        plot_df,
-        x=cols["modelo"],
-        y=cols["r2"],
-        text=plot_df[cols["r2"]].map(lambda value: f"{value:.4f}"),
-        title="R² por modelo no holdout temporal",
-        labels={cols["modelo"]: "Modelo", cols["r2"]: "R²"},
-    )
-    fig_r2.update_layout(showlegend=False, margin=dict(l=20, r=20, t=60, b=20))
-    st.plotly_chart(fig_r2, width="stretch")
+    fig_r2 = px.bar(plot_df, x=cols["modelo"], y=cols["r2"], text=plot_df[cols["r2"]].map(lambda value: f"{value:.4f}"), title="R² por modelo no holdout temporal")
+    st.plotly_chart(apply_plot_style(fig_r2), width="stretch")
 
     error_cols = [cols[name] for name in ["mae", "rmse", "mse"] if name in cols]
-    errors_long = plot_df[[cols["modelo"], *error_cols]].melt(
-        id_vars=cols["modelo"], var_name="Metrica", value_name="Valor"
-    )
-    fig_errors = px.bar(
-        errors_long,
-        x=cols["modelo"],
-        y="Valor",
-        color="Metrica",
-        barmode="group",
-        title="Erros regressivos por modelo",
-        labels={cols["modelo"]: "Modelo", "Valor": "Erro"},
-    )
-    fig_errors.update_layout(margin=dict(l=20, r=20, t=60, b=20))
-    st.plotly_chart(fig_errors, width="stretch")
-    st.dataframe(highlighted_baseline_table(table), width="stretch", hide_index=True)
+    errors_long = plot_df[[cols["modelo"], *error_cols]].melt(id_vars=cols["modelo"], var_name="Métrica", value_name="Valor")
+    st.plotly_chart(apply_plot_style(px.bar(errors_long, x=cols["modelo"], y="Valor", color="Métrica", barmode="group", title="MAE, RMSE e MSE por modelo")), width="stretch")
 
-with tabs[4]:
-    st.markdown("### Laboratório de Threshold")
-    st.caption("Exploracao sobre o holdout real versionado. Nao recalcula regressao nem altera metricas do artigo.")
+    aux_keys = ["accuracy", "precision", "recall", "f1"]
+    if all(key in cols for key in aux_keys):
+        aux_df = pd.DataFrame({"Métrica": ["Accuracy", "Precision", "Recall", "F1"], "Valor": [float(rf[cols[key]]) for key in aux_keys]})
+        fig_aux = px.bar(aux_df, x="Métrica", y="Valor", text=aux_df["Valor"].map(lambda value: f"{value:.4f}"), title="Métricas classificatórias auxiliares da Random Forest")
+        fig_aux.update_yaxes(range=[0, 1])
+        st.plotly_chart(apply_plot_style(fig_aux), width="stretch")
+
+    cm_cols = ["cm_tn", "cm_fp", "cm_fn", "cm_tp"]
+    if all(name in cols for name in cm_cols):
+        fixed = {"tn": int(rf[cols["cm_tn"]]), "fp": int(rf[cols["cm_fp"]]), "fn": int(rf[cols["cm_fn"]]), "tp": int(rf[cols["cm_tp"]])}
+        render_confusion_matrix(fixed, "Matriz de confusão fixa - Random Forest, threshold 0,50")
+
     if predicoes is None:
-        st.info("Arquivo de predicoes do holdout nao encontrado nesta versao.")
+        st.info("O ajuste dinâmico de threshold requer artefato de predições do holdout. Esta versão pública exibe a matriz e as métricas fixas do benchmark reportado no artigo.")
     else:
-        threshold = st.slider("Threshold binario", min_value=0.10, max_value=0.90, value=0.50, step=0.01)
+        st.markdown('<div class="section-title">Threshold dinâmico no holdout</div>', unsafe_allow_html=True)
+        threshold = st.slider("Threshold binário", min_value=0.10, max_value=0.90, value=0.50, step=0.01)
         values = threshold_metrics(predicoes, threshold)
         c1, c2, c3, c4 = st.columns(4)
         with c1:
-            st.markdown(metric_card("Accuracy", values["accuracy"], "classificacao auxiliar"), unsafe_allow_html=True)
+            st.markdown(metric_card("Accuracy", values["accuracy"], "classificação auxiliar"), unsafe_allow_html=True)
         with c2:
-            st.markdown(metric_card("Precision", values["precision"], "classe alta evasao"), unsafe_allow_html=True)
+            st.markdown(metric_card("Precision", values["precision"], "classe alta evasão"), unsafe_allow_html=True)
         with c3:
-            st.markdown(metric_card("Recall", values["recall"], "classe alta evasao"), unsafe_allow_html=True)
+            st.markdown(metric_card("Recall", values["recall"], "classe alta evasão"), unsafe_allow_html=True)
         with c4:
-            st.markdown(metric_card("F1", values["f1"], "equilibrio precision/recall"), unsafe_allow_html=True)
-        render_confusion_matrix(values, f"Matriz de confusao no threshold {fmt_decimal(threshold, 2)}")
-        scatter_sample = predicoes.sample(min(len(predicoes), 5000), random_state=42)
-        fig_scatter = px.scatter(
-            scatter_sample,
-            x="y_real",
-            y="y_pred",
-            opacity=0.35,
-            title="Amostra do holdout: valor real vs predicao",
-            labels={"y_real": "Taxa real", "y_pred": "Taxa predita"},
-        )
-        fig_scatter.add_shape(type="line", x0=0, x1=1, y0=0, y1=1, line=dict(color="#d62728", dash="dash"))
-        fig_scatter.update_layout(margin=dict(l=20, r=20, t=60, b=20))
-        st.plotly_chart(fig_scatter, width="stretch")
+            st.markdown(metric_card("F1", values["f1"], "equilíbrio precision/recall"), unsafe_allow_html=True)
+        render_confusion_matrix(values, f"Matriz dinâmica no threshold {fmt_decimal(threshold, 2)}")
+        sample = predicoes.sample(min(len(predicoes), 5000), random_state=42)
+        scatter = px.scatter(sample, x="y_real", y="y_pred", opacity=0.32, title="Amostra do holdout: valor real vs predição", labels={"y_real": "Taxa real", "y_pred": "Taxa predita"})
+        scatter.add_shape(type="line", x0=0, x1=1, y0=0, y1=1, line=dict(color="#f6d365", dash="dash"))
+        st.plotly_chart(apply_plot_style(scatter), width="stretch")
+        error_fig = px.histogram(predicoes, x="erro", nbins=60, title="Distribuição do erro de predição no holdout")
+        st.plotly_chart(apply_plot_style(error_fig), width="stretch")
 
 with tabs[5]:
-    st.markdown("### Diagnósticos")
+    st.markdown('<div class="section-title">Diagnósticos e Limites</div>', unsafe_allow_html=True)
+    st.markdown(
+        """
+<div class="glass-panel">
+  <p><strong>Moderado não é fraco:</strong> no contexto temporal e anti-leakage, o resultado é uma referência comparável e auditável, não uma promessa de acerto absoluto.</p>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        """
+- Ausência de `ano_base=2020` após critério de completude.
+- Dados agregados, não individuais.
+- Dependência do fechamento anual para uso de `concluintes_t`.
+- Leitura binária alta/baixa evasão apenas como apoio interpretativo.
+- Desempenho regressivo moderado, coerente com a dificuldade temporal do problema.
+"""
+    )
     if feature_importance is not None and {"feature", "importance"}.issubset(feature_importance.columns):
         fi = feature_importance.sort_values("importance", ascending=True)
-        st.plotly_chart(
-            px.bar(
-                fi,
-                x="importance",
-                y="feature",
-                orientation="h",
-                title="Importancia relativa dos atributos - Random Forest",
-                labels={"importance": "Importancia", "feature": "Feature"},
-            ),
-            width="stretch",
-        )
+        st.plotly_chart(apply_plot_style(px.bar(fi, x="importance", y="feature", orientation="h", title="Importância relativa dos atributos - Random Forest")), width="stretch")
     if completude is not None:
         comp = completude.copy()
         comp["percentual_perda"] = pd.to_numeric(comp["percentual_perda"], errors="coerce")
-        st.plotly_chart(
-            px.line(
-                comp,
-                x="ano_base",
-                y="percentual_perda",
-                markers=True,
-                title="Perda apos dropna por ano-base",
-                labels={"ano_base": "Ano-base", "percentual_perda": "Percentual de perda"},
-            ),
-            width="stretch",
-        )
+        st.plotly_chart(apply_plot_style(px.line(comp, x="ano_base", y="percentual_perda", markers=True, title="Perda após dropna por ano-base")), width="stretch")
         st.dataframe(comp, width="stretch", hide_index=True)
     if balanceamento is not None:
         bal = balanceamento.copy()
-        st.plotly_chart(
-            px.bar(
-                bal,
-                x="conjunto",
-                y=["prop_baixa_evasao", "prop_alta_evasao"],
-                barmode="group",
-                title="Balanceamento das classes por conjunto",
-                labels={"value": "Proporcao", "conjunto": "Conjunto", "variable": "Classe"},
-            ),
-            width="stretch",
-        )
+        st.plotly_chart(apply_plot_style(px.bar(bal, x="conjunto", y=["prop_baixa_evasao", "prop_alta_evasao"], barmode="group", title="Balanceamento das classes por conjunto")), width="stretch")
         st.dataframe(bal, width="stretch", hide_index=True)
 
 with tabs[6]:
-    st.markdown("### Artefatos versionados")
-    st.write("Repositorio: `EddieFerb/appevasao-sbie-deploy`")
-    st.write(f"URL publica: `{PUBLIC_URL}`")
+    st.markdown('<div class="section-title">Artefatos</div>', unsafe_allow_html=True)
+    st.markdown(source_card_markup(), unsafe_allow_html=True)
     st.markdown(
-        "Este repo publico contem apenas o app e artefatos consolidados. "
-        "Nao contem pipeline de modelagem, processamento, analises internas, dados brutos ou modelos salvos."
+        f"""
+<div class="glass-panel">
+  <p><strong>Repositório:</strong> <a href="{REPO_URL}" target="_blank">{REPO_URL}</a></p>
+  <p><strong>Aplicação:</strong> <a href="{PUBLIC_URL}" target="_blank">{PUBLIC_URL}</a></p>
+  <p style="margin-top:.65rem;">Este é um repositório minimalista de deploy. O pipeline científico completo não é publicado nesta versão por integrar artefato institucional em desenvolvimento. As métricas, variáveis, critérios de filtragem e divisão temporal estão descritos no artigo.</p>
+</div>
+""",
+        unsafe_allow_html=True,
     )
-
     artifact_specs = [
         (BENCHMARK_CSV, "Benchmark CSV", "text/csv"),
         (BENCHMARK_MD, "Benchmark MD", "text/markdown"),
-        (METRICAS_TXT, "Metricas TXT", "text/plain"),
-        (FEATURE_IMPORTANCE_CSV, "Importancia CSV", "text/csv"),
-        (FEATURE_IMPORTANCE_MD, "Importancia MD", "text/markdown"),
+        (METRICAS_TXT, "Métricas TXT", "text/plain"),
+        (FEATURE_IMPORTANCE_CSV, "Importância CSV", "text/csv"),
+        (FEATURE_IMPORTANCE_MD, "Importância MD", "text/markdown"),
         (COMPLETUDE_CSV, "Completude CSV", "text/csv"),
         (COMPLETUDE_MD, "Completude MD", "text/markdown"),
         (BALANCEAMENTO_CSV, "Balanceamento CSV", "text/csv"),
         (BALANCEAMENTO_MD, "Balanceamento MD", "text/markdown"),
-        (PREDICOES_CSV, "Predicoes holdout CSV", "text/csv"),
+        (PREDICOES_CSV, "Predições holdout CSV", "text/csv"),
     ]
     for row in range(0, len(artifact_specs), 3):
         cols_download = st.columns(3)
