@@ -221,6 +221,52 @@ h1, h2, h3, h4, p, li, label, span, div { letter-spacing: 0; }
 }
 [data-testid="stDataFrame"] { border: 1px solid rgba(255,255,255,.15); border-radius: 18px; overflow: hidden; }
 a { color: var(--cyan); }
+
+.stApp, .stApp p, .stApp li { font-size: 18px; line-height: 1.62; }
+a { color: #a7f3d0; text-decoration: underline; text-underline-offset: 3px; }
+a:hover { color: #cffafe; }
+button:focus-visible, a:focus-visible, [role="tab"]:focus-visible, [data-testid="stDownloadButton"] button:focus-visible {
+  outline: 3px solid #fef08a !important;
+  outline-offset: 4px !important;
+  box-shadow: 0 0 0 6px rgba(254,240,138,.20) !important;
+}
+.accessible-description {
+  border: 1px solid rgba(255,255,255,.24);
+  border-left: 5px solid #fef08a;
+  border-radius: 16px;
+  padding: .95rem 1rem;
+  background: rgba(2, 6, 23, .72);
+  color: #f8fbff;
+  margin: .7rem 0 1rem;
+}
+.accessible-description h3 { margin: 0 0 .55rem; font-size: 1.08rem; color: #fff; }
+.accessible-description ul { margin: 0; padding-left: 1.15rem; }
+.accessible-description li { margin: .25rem 0; color: #f1f5f9; }
+.table-summary {
+  border-radius: 16px;
+  padding: .9rem 1rem;
+  background: rgba(15, 23, 42, .78);
+  border: 1px solid rgba(255,255,255,.20);
+  color: #f8fbff;
+  margin: .65rem 0 .85rem;
+}
+.table-summary strong { color: #fff; }
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+@media (prefers-contrast: more) {
+  .stApp { background: #020617 !important; color: #ffffff !important; }
+  .glass-hero, .glass-panel, .source-card, .kpi-card, .metric-card, .value-step {
+    background: #07111f !important;
+    border-color: #f8fafc !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  .glass-hero p, .glass-panel p, .source-card p, .kpi-hint, .metric-hint, .value-step span { color: #f1f5f9 !important; }
+  a { color: #fef08a !important; }
+}
+
 @media (max-width: 1050px) { .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .value-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); } .hero-layout { grid-template-columns: 1fr; } }
 @media (max-width: 680px) { .kpi-grid, .value-flow, .hero-evidence { grid-template-columns: 1fr; } .glass-hero { padding: 1.35rem; border-radius: 22px; } .kpi-value, .metric-value { font-size: 1.85rem; } .stTabs [data-baseweb="tab"] { min-height: 52px; padding: .72rem 1rem; } .stTabs [data-baseweb="tab"] p { font-size: 20px !important; } }
 </style>
@@ -357,7 +403,7 @@ def source_card_markup() -> str:
   <div class="section-title">Fonte dos dados</div>
   <p><strong>Fonte oficial:</strong> Microdados do Censo da Educação Superior — INEP/MEC.
   Os microdados públicos foram tratados e agregados para construção do benchmark temporal apresentado neste artigo.</p>
-  <p style="margin-top:.65rem;"><a href="{INEP_URL}" target="_blank">Página oficial dos microdados do Censo da Educação Superior</a></p>
+  <p style="margin-top:.65rem;"><a href="{INEP_URL}" target="_blank">Acessar página oficial dos Microdados do Censo da Educação Superior — INEP/MEC</a></p>
 </div>
 """
 
@@ -391,6 +437,40 @@ def apply_plot_style(fig: go.Figure) -> go.Figure:
     return fig
 
 
+
+def accessible_chart_description(
+    title: str,
+    chart_type: str,
+    purpose: str,
+    axes: str,
+    main_pattern: str,
+    conclusion: str,
+) -> None:
+    st.markdown(
+        f"""
+<div class="accessible-description">
+  <h3>Descrição acessível do gráfico: {title}</h3>
+  <ul>
+    <li><strong>Tipo:</strong> {chart_type}</li>
+    <li><strong>Propósito:</strong> {purpose}</li>
+    <li><strong>Eixos:</strong> {axes}</li>
+    <li><strong>Tendência principal:</strong> {main_pattern}</li>
+    <li><strong>Conclusão:</strong> {conclusion}</li>
+  </ul>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
+
+
+def table_summary(text: str) -> None:
+    st.markdown(f'<div class="table-summary"><strong>Resumo da tabela:</strong> {text}</div>', unsafe_allow_html=True)
+
+
+def section_intro(name: str) -> None:
+    st.caption(f"Você está na seção {name}.")
+
+
 st.sidebar.title("AppEvasão")
 st.sidebar.markdown("**Evidência SBIE 2026**")
 st.sidebar.markdown("Aplicação:")
@@ -398,8 +478,38 @@ st.sidebar.link_button("Abrir app público", PUBLIC_URL)
 st.sidebar.markdown("Repositório:")
 st.sidebar.link_button("GitHub", REPO_URL)
 st.sidebar.markdown("Fonte: **INEP/MEC — Censo da Educação Superior**")
-st.sidebar.link_button("Link oficial dos microdados", INEP_URL)
+st.sidebar.link_button("Acessar página oficial dos Microdados do Censo da Educação Superior — INEP/MEC", INEP_URL)
 st.sidebar.caption("Main file path: `src/evasao/dashboard/app_evasao.py`")
+
+accessibility_mode = st.sidebar.toggle(
+    "Modo de acessibilidade",
+    value=False,
+    help="Ativar alto contraste, reduzir transparência e simplificar efeitos visuais.",
+)
+st.sidebar.caption("Ative para alto contraste, menos transparência e menos efeitos visuais.")
+
+if accessibility_mode:
+    st.markdown(
+        """
+<style>
+.stApp { background: #020617 !important; color: #ffffff !important; }
+.glass-hero, .glass-panel, .source-card, .kpi-card, .metric-card, .value-step, .accessible-description, .table-summary {
+  background: #07111f !important;
+  border-color: #f8fafc !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.glass-hero:after { display: none !important; }
+.glass-hero p, .glass-panel p, .source-card p, .kpi-hint, .metric-hint, .value-step span, .story-chip { color: #f8fafc !important; }
+.stTabs [data-baseweb="tab"] { background: #0f172a !important; border-color: #f8fafc !important; box-shadow: none !important; }
+.stTabs [aria-selected="true"] { background: #1e293b !important; outline: 3px solid #fef08a !important; }
+a { color: #fef08a !important; text-decoration: underline !important; }
+* { transition: none !important; animation: none !important; }
+</style>
+""",
+        unsafe_allow_html=True,
+    )
 
 try:
     df = load_benchmark()
@@ -445,6 +555,15 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+st.markdown("""
+<div class="glass-panel">
+  <div class="section-title">Como ler esta aplicação</div>
+  <p>Esta aplicação pode ser lida em sequência, como uma história: primeiro o problema, depois a revisão, as lacunas, o benchmark, as evidências e os artefatos. Os gráficos sempre são acompanhados de descrições textuais.</p>
+</div>
+""", unsafe_allow_html=True)
+
+st.markdown("**Navegação:** História | Revisão em Números | Lacunas | Benchmark Temporal | Evidências Visuais | Diagnósticos e Limites | Artefatos")
+
 tabs = st.tabs(
     [
         "História",
@@ -458,6 +577,7 @@ tabs = st.tabs(
 )
 
 with tabs[0]:
+    section_intro("História")
     st.markdown(
         """
 <div class="glass-panel">
@@ -480,6 +600,7 @@ with tabs[0]:
     st.markdown(value_flow_markup(), unsafe_allow_html=True)
 
 with tabs[1]:
+    section_intro("Revisão em Números")
     st.markdown('<div class="section-title">Revisão em Números</div>', unsafe_allow_html=True)
     for row in [
         [
@@ -509,6 +630,7 @@ with tabs[1]:
         ],
         columns=["Etapa", "Registros"],
     )
+    accessible_chart_description("Funil da revisão estruturada", "gráfico de funil", "mostrar a redução de registros ao longo da revisão", "eixo horizontal: quantidade de registros; eixo vertical: etapas da revisão", "o número de registros diminui da importação até os estudos incluídos", "o corpus final é resultado de filtragem documentada e transparente")
     fig = px.funnel(funnel, x="Registros", y="Etapa", title="Funil da revisão estruturada")
     st.plotly_chart(apply_plot_style(fig), width="stretch")
 
@@ -521,7 +643,8 @@ with tabs[1]:
             ],
             columns=["Universo", "Estudos"],
         )
-        st.plotly_chart(apply_plot_style(px.bar(universe, x="Universo", y="Estudos", text="Estudos", title="Universo A e Universo B por uso explícito de INEP/MEC")), width="stretch")
+        accessible_chart_description("Universo A e Universo B", "gráfico de barras", "comparar estudos com e sem uso explícito de dados INEP/MEC", "eixo horizontal: universo; eixo vertical: número de estudos", "Universo A concentra mais estudos que Universo B", "o uso explícito de dados INEP/MEC ainda é minoritário na literatura mapeada")
+        st.plotly_chart(apply_plot_style(px.bar(universe, x="Universo", y="Estudos", text="Estudos", title="Universo A e Universo B por uso explícito de INEP/MEC", pattern_shape="Universo")), width="stretch")
     with c2:
         signals = pd.DataFrame(
             [
@@ -531,9 +654,11 @@ with tabs[1]:
             ],
             columns=["Sinal", "Estudos"],
         )
-        st.plotly_chart(apply_plot_style(px.bar(signals, x="Sinal", y="Estudos", text="Estudos", title="Sinais de aproximação ao benchmark")), width="stretch")
+        accessible_chart_description("Sinais de aproximação ao benchmark", "gráfico de barras", "mostrar quantos estudos se aproximam da configuração do benchmark", "eixo horizontal: sinal metodológico; eixo vertical: número de estudos", "Random Forest aparece com frequência, mas a combinação INEP/MEC e Random Forest é menor", "o benchmark público responde a uma lacuna de integração entre dados oficiais, modelo e artefato")
+        st.plotly_chart(apply_plot_style(px.bar(signals, x="Sinal", y="Estudos", text="Estudos", title="Sinais de aproximação ao benchmark", pattern_shape="Sinal")), width="stretch")
 
 with tabs[2]:
+    section_intro("Lacunas")
     st.markdown(
         """
 <div class="glass-panel">
@@ -566,14 +691,18 @@ with tabs[2]:
         [("Risco de evasão", 32), ("Permanência/retenção", 18), ("Evasão binária", 29), ("Taxa de evasão", 9)],
         columns=["Tipo de alvo", "Estudos"],
     )
-    st.plotly_chart(apply_plot_style(px.bar(validations, x="Validação", y="Estudos", text="Estudos", title="Estratégias de validação reportadas")), width="stretch")
+    accessible_chart_description("Estratégias de validação reportadas", "gráfico de barras", "comparar estratégias de validação encontradas na revisão", "eixo horizontal: tipo de validação; eixo vertical: número de estudos", "validação temporal aparece em poucos estudos", "a validação temporal é uma lacuna importante para benchmarks de previsão futura")
+    st.plotly_chart(apply_plot_style(px.bar(validations, x="Validação", y="Estudos", text="Estudos", title="Estratégias de validação reportadas", pattern_shape="Validação")), width="stretch")
     c1, c2 = st.columns(2)
     with c1:
-        st.plotly_chart(apply_plot_style(px.bar(metrics, x="Métrica", y="Estudos", text="Estudos", title="Métricas reportadas")), width="stretch")
+        accessible_chart_description("Métricas reportadas", "gráfico de barras", "mostrar quais métricas são mais frequentes nos estudos", "eixo horizontal: métrica; eixo vertical: número de estudos", "métricas classificatórias aparecem mais que métricas regressivas", "o artigo complementa a literatura ao reportar métricas regressivas do benchmark temporal")
+        st.plotly_chart(apply_plot_style(px.bar(metrics, x="Métrica", y="Estudos", text="Estudos", title="Métricas reportadas", pattern_shape="Métrica")), width="stretch")
     with c2:
-        st.plotly_chart(apply_plot_style(px.bar(targets, x="Tipo de alvo", y="Estudos", text="Estudos", title="Tipos de alvo")), width="stretch")
+        accessible_chart_description("Tipos de alvo", "gráfico de barras", "comparar como os estudos representam o problema de evasão", "eixo horizontal: tipo de alvo; eixo vertical: número de estudos", "risco de evasão e evasão binária são frequentes", "o benchmark adota taxa de evasão futura como alvo regressivo temporal")
+        st.plotly_chart(apply_plot_style(px.bar(targets, x="Tipo de alvo", y="Estudos", text="Estudos", title="Tipos de alvo", pattern_shape="Tipo de alvo")), width="stretch")
 
 with tabs[3]:
+    section_intro("Benchmark Temporal")
     st.markdown('<div class="section-title">Benchmark Temporal</div>', unsafe_allow_html=True)
     st.markdown(value_flow_markup(), unsafe_allow_html=True)
     metric_cols = st.columns(4)
@@ -582,32 +711,44 @@ with tabs[3]:
         with container:
             st.markdown(metric_card(label, rf[cols[key]], hint), unsafe_allow_html=True)
     st.markdown('<div class="evidence-note">As métricas desta seção são fixas e foram lidas diretamente de <code>comparacao_baselines_temporal.csv</code>.</div>', unsafe_allow_html=True)
-    st.dataframe(highlighted_baseline_table(table), width="stretch", hide_index=True)
+    table_summary("A tabela compara quatro modelos no holdout temporal: média histórica, persistência, regressão linear e Random Forest. As métricas regressivas principais são R², MAE, RMSE e MSE. Random Forest apresenta o maior R² e os menores erros regressivos.")
+    st.dataframe(highlighted_baseline_table(table.fillna("N/A")), width="stretch", hide_index=True)
 
 with tabs[4]:
+    section_intro("Evidências Visuais")
     st.markdown('<div class="section-title">Evidências Visuais</div>', unsafe_allow_html=True)
     plot_df = df.copy()
     for name in ["r2", "mae", "rmse", "mse", "accuracy", "precision", "recall", "f1"]:
         if name in cols:
             plot_df[cols[name]] = pd.to_numeric(plot_df[cols[name]], errors="coerce")
 
-    fig_r2 = px.bar(plot_df, x=cols["modelo"], y=cols["r2"], text=plot_df[cols["r2"]].map(lambda value: f"{value:.4f}"), title="R² por modelo no holdout temporal")
+    accessible_chart_description("R² por modelo no holdout temporal", "gráfico de barras", "comparar o desempenho regressivo dos modelos no holdout temporal", "eixo horizontal: modelos avaliados; eixo vertical: valor da métrica R²", "Random Forest apresenta o maior R² entre os modelos comparados", "no eixo regressivo, Random Forest foi o melhor modelo do benchmark temporal")
+    fig_r2 = px.bar(plot_df, x=cols["modelo"], y=cols["r2"], text=plot_df[cols["r2"]].map(lambda value: f"{value:.4f}"), title="R² por modelo no holdout temporal", pattern_shape=cols["modelo"])
     st.plotly_chart(apply_plot_style(fig_r2), width="stretch")
 
     error_cols = [cols[name] for name in ["mae", "rmse", "mse"] if name in cols]
     errors_long = plot_df[[cols["modelo"], *error_cols]].melt(id_vars=cols["modelo"], var_name="Métrica", value_name="Valor")
-    st.plotly_chart(apply_plot_style(px.bar(errors_long, x=cols["modelo"], y="Valor", color="Métrica", barmode="group", title="MAE, RMSE e MSE por modelo")), width="stretch")
+    accessible_chart_description("Erros regressivos por modelo", "gráfico de barras agrupadas", "comparar MAE, RMSE e MSE entre os modelos", "eixo horizontal: modelos; eixo vertical: valor do erro; grupos: tipo de métrica", "Random Forest apresenta os menores erros regressivos", "os erros confirmam o melhor desempenho regressivo do Random Forest no benchmark")
+    st.plotly_chart(apply_plot_style(px.bar(errors_long, x=cols["modelo"], y="Valor", color="Métrica", pattern_shape="Métrica", barmode="group", title="MAE, RMSE e MSE por modelo")), width="stretch")
 
     aux_keys = ["accuracy", "precision", "recall", "f1"]
     if all(key in cols for key in aux_keys):
         aux_df = pd.DataFrame({"Métrica": ["Accuracy", "Precision", "Recall", "F1"], "Valor": [float(rf[cols[key]]) for key in aux_keys]})
-        fig_aux = px.bar(aux_df, x="Métrica", y="Valor", text=aux_df["Valor"].map(lambda value: f"{value:.4f}"), title="Métricas classificatórias auxiliares da Random Forest")
+        accessible_chart_description("Métricas classificatórias auxiliares da Random Forest", "gráfico de barras", "mostrar accuracy, precision, recall e F1 como apoio interpretativo", "eixo horizontal: métrica classificatória; eixo vertical: valor entre 0 e 1", "as métricas auxiliares ficam próximas entre si, com recall ligeiramente superior", "essas métricas ajudam a ler alta/baixa evasão, mas a comparação principal do artigo é regressiva")
+        fig_aux = px.bar(aux_df, x="Métrica", y="Valor", text=aux_df["Valor"].map(lambda value: f"{value:.4f}"), title="Métricas classificatórias auxiliares da Random Forest", pattern_shape="Métrica")
         fig_aux.update_yaxes(range=[0, 1])
         st.plotly_chart(apply_plot_style(fig_aux), width="stretch")
 
     cm_cols = ["cm_tn", "cm_fp", "cm_fn", "cm_tp"]
     if all(name in cols for name in cm_cols):
         fixed = {"tn": int(rf[cols["cm_tn"]]), "fp": int(rf[cols["cm_fp"]]), "fn": int(rf[cols["cm_fn"]]), "tp": int(rf[cols["cm_tp"]])}
+        accessible_chart_description("Matriz de confusão fixa", "mapa de calor com tabela numérica", "mostrar acertos e erros da leitura auxiliar alta/baixa evasão", "linhas: classe real; colunas: classe predita", "a maior célula é de verdadeiros positivos", "a matriz deve ser lida como apoio auxiliar, não como métrica principal do artigo")
+        st.dataframe(pd.DataFrame([
+            {"Célula": "Verdadeiros negativos", "Significado": "baixa evasão real prevista como baixa", "Valor": fmt_int(fixed["tn"])},
+            {"Célula": "Falsos positivos", "Significado": "baixa evasão real prevista como alta", "Valor": fmt_int(fixed["fp"])},
+            {"Célula": "Falsos negativos", "Significado": "alta evasão real prevista como baixa", "Valor": fmt_int(fixed["fn"])},
+            {"Célula": "Verdadeiros positivos", "Significado": "alta evasão real prevista como alta", "Valor": fmt_int(fixed["tp"])},
+        ]), width="stretch", hide_index=True)
         render_confusion_matrix(fixed, "Matriz de confusão fixa - Random Forest, threshold 0,50")
 
     st.info(
@@ -616,6 +757,7 @@ with tabs[4]:
     )
 
 with tabs[5]:
+    section_intro("Diagnósticos e Limites")
     st.markdown('<div class="section-title">Diagnósticos e Limites</div>', unsafe_allow_html=True)
     st.markdown(
         """
@@ -636,18 +778,24 @@ with tabs[5]:
     )
     if feature_importance is not None and {"feature", "importance"}.issubset(feature_importance.columns):
         fi = feature_importance.sort_values("importance", ascending=True)
-        st.plotly_chart(apply_plot_style(px.bar(fi, x="importance", y="feature", orientation="h", title="Importância relativa dos atributos - Random Forest")), width="stretch")
+        accessible_chart_description("Importância relativa dos atributos", "gráfico de barras horizontais", "mostrar quais variáveis mais contribuíram para o Random Forest", "eixo horizontal: importância relativa; eixo vertical: variável", "as variáveis aparecem ordenadas por importância", "a leitura ajuda a interpretar o modelo sem mudar as métricas reportadas")
+        st.plotly_chart(apply_plot_style(px.bar(fi, x="importance", y="feature", orientation="h", text="importance", title="Importância relativa dos atributos - Random Forest", pattern_shape="feature")), width="stretch")
     if completude is not None:
         comp = completude.copy()
         comp["percentual_perda"] = pd.to_numeric(comp["percentual_perda"], errors="coerce")
+        accessible_chart_description("Perda após dropna por ano-base", "gráfico de linha com marcadores", "mostrar a perda de registros após o critério de completude temporal", "eixo horizontal: ano-base; eixo vertical: percentual de perda", "ano-base 2020 tem perda integral após o critério de completude", "a ausência de 2020 no teste é documentada como limitação metodológica")
         st.plotly_chart(apply_plot_style(px.line(comp, x="ano_base", y="percentual_perda", markers=True, title="Perda após dropna por ano-base")), width="stretch")
-        st.dataframe(comp, width="stretch", hide_index=True)
+        table_summary("A tabela mostra, por ano-base, quantas linhas existiam antes do critério de completude, quantas permaneceram e qual foi o percentual de perda. Valores ausentes são exibidos como N/A.")
+        st.dataframe(comp.fillna("N/A"), width="stretch", hide_index=True)
     if balanceamento is not None:
         bal = balanceamento.copy()
-        st.plotly_chart(apply_plot_style(px.bar(bal, x="conjunto", y=["prop_baixa_evasao", "prop_alta_evasao"], barmode="group", title="Balanceamento das classes por conjunto")), width="stretch")
-        st.dataframe(bal, width="stretch", hide_index=True)
+        accessible_chart_description("Balanceamento das classes por conjunto", "gráfico de barras agrupadas", "comparar proporção de baixa e alta evasão nos conjuntos total, treino e teste", "eixo horizontal: conjunto; eixo vertical: proporção; grupos: baixa e alta evasão", "alta evasão é a classe majoritária nos conjuntos", "por isso, acurácia é tratada apenas como métrica auxiliar")
+        st.plotly_chart(apply_plot_style(px.bar(bal, x="conjunto", y=["prop_baixa_evasao", "prop_alta_evasao"], pattern_shape="conjunto", barmode="group", title="Balanceamento das classes por conjunto")), width="stretch")
+        table_summary("A tabela resume o balanceamento entre baixa e alta evasão por conjunto. Ela ajuda a interpretar por que métricas como F1, precisão e recall acompanham a acurácia.")
+        st.dataframe(bal.fillna("N/A"), width="stretch", hide_index=True)
 
 with tabs[6]:
+    section_intro("Artefatos")
     st.markdown('<div class="section-title">Artefatos</div>', unsafe_allow_html=True)
     st.markdown(source_card_markup(), unsafe_allow_html=True)
     st.markdown(
@@ -661,15 +809,15 @@ with tabs[6]:
         unsafe_allow_html=True,
     )
     artifact_specs = [
-        (BENCHMARK_CSV, "Benchmark CSV", "text/csv"),
-        (BENCHMARK_MD, "Benchmark MD", "text/markdown"),
-        (METRICAS_TXT, "Métricas TXT", "text/plain"),
-        (FEATURE_IMPORTANCE_CSV, "Importância CSV", "text/csv"),
-        (FEATURE_IMPORTANCE_MD, "Importância MD", "text/markdown"),
-        (COMPLETUDE_CSV, "Completude CSV", "text/csv"),
-        (COMPLETUDE_MD, "Completude MD", "text/markdown"),
-        (BALANCEAMENTO_CSV, "Balanceamento CSV", "text/csv"),
-        (BALANCEAMENTO_MD, "Balanceamento MD", "text/markdown"),
+        (BENCHMARK_CSV, "Baixar CSV com comparação dos baselines", "text/csv"),
+        (BENCHMARK_MD, "Baixar Markdown com comparação dos baselines", "text/markdown"),
+        (METRICAS_TXT, "Baixar relatório textual de métricas", "text/plain"),
+        (FEATURE_IMPORTANCE_CSV, "Baixar CSV de importância das variáveis", "text/csv"),
+        (FEATURE_IMPORTANCE_MD, "Baixar Markdown de importância das variáveis", "text/markdown"),
+        (COMPLETUDE_CSV, "Baixar CSV de diagnóstico de completude", "text/csv"),
+        (COMPLETUDE_MD, "Baixar Markdown de diagnóstico de completude", "text/markdown"),
+        (BALANCEAMENTO_CSV, "Baixar CSV de balanceamento das classes", "text/csv"),
+        (BALANCEAMENTO_MD, "Baixar Markdown de balanceamento das classes", "text/markdown"),
     ]
     for row in range(0, len(artifact_specs), 3):
         cols_download = st.columns(3)

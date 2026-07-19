@@ -67,6 +67,20 @@ Métricas classificatórias auxiliares são exibidas apenas quando já estão no
 
 A formulação temporal usa variáveis observadas no ano-base `t` para prever `taxa_evasao_alvo` em `t+1`. O modelo principal não usa `taxa_evasao`, `taxa_conclusao` nem colunas derivadas diretamente do alvo como features. A avaliação usa particionamento temporal, não aleatório.
 
+## Acessibilidade
+
+A aplicação foi ajustada para apoiar leitura inclusiva no contexto SBIE/CBIE:
+
+- usa linguagem clara e descrições textuais visíveis para gráficos;
+- as informações não dependem apenas de cor;
+- há modo de acessibilidade com maior contraste, menos transparência e menos efeitos visuais;
+- tabelas são acompanhadas de resumo textual;
+- links e downloads usam rótulos descritivos;
+- há foco visual reforçado para navegação por teclado;
+- recomenda-se testar com leitor de tela e navegação por teclado antes de divulgação formal.
+
+Limitação conhecida: o Streamlit controla parte da semântica interna de abas e componentes interativos, então alguns aspectos dependem da implementação nativa da plataforma.
+
 ## Escopo público
 
 Este é um repositório minimalista de deploy. O pipeline científico completo não é publicado nesta versão por integrar artefato institucional em desenvolvimento. As métricas, variáveis, critérios de filtragem e divisão temporal estão descritos no artigo.
