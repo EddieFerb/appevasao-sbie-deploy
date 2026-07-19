@@ -61,7 +61,7 @@ RMSE = 0,2331
 MSE  = 0,0543
 ```
 
-Métricas classificatórias auxiliares e simulações de threshold usam somente artefatos versionados de holdout. O app não treina modelo, não recalcula o benchmark regressivo e não altera resultados.
+Métricas classificatórias auxiliares são exibidas apenas quando já estão no artefato comparativo. O app não treina modelo, não ajusta threshold em runtime, não recalcula o benchmark e não altera resultados.
 
 ## Nota anti-leakage
 
@@ -95,5 +95,4 @@ modelos/resultados_modelos/diagnostico_completude_temporal.csv
 modelos/resultados_modelos/diagnostico_completude_temporal.md
 modelos/resultados_modelos/diagnostico_balanceamento_classes.csv
 modelos/resultados_modelos/diagnostico_balanceamento_classes.md
-modelos/resultados_modelos/predicoes_holdout_random_forest_sbie.csv
 ```

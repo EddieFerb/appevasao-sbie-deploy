@@ -17,7 +17,6 @@ COMPLETUDE_CSV = RESULTS_DIR / "diagnostico_completude_temporal.csv"
 COMPLETUDE_MD = RESULTS_DIR / "diagnostico_completude_temporal.md"
 BALANCEAMENTO_CSV = RESULTS_DIR / "diagnostico_balanceamento_classes.csv"
 BALANCEAMENTO_MD = RESULTS_DIR / "diagnostico_balanceamento_classes.md"
-PREDICOES_CSV = RESULTS_DIR / "predicoes_holdout_random_forest_sbie.csv"
 
 PUBLIC_URL = "https://appevasaosbie.streamlit.app/"
 REPO_URL = "https://github.com/EddieFerb/appevasao-sbie-deploy"
@@ -340,20 +339,6 @@ def source_card_markup() -> str:
 """
 
 
-def threshold_metrics(pred: pd.DataFrame, threshold: float) -> dict[str, float]:
-    real = (pred["y_real"].astype(float) >= threshold).astype(int)
-    pred_cls = (pred["y_pred"].astype(float).clip(0, 1) >= threshold).astype(int)
-    tp = int(((real == 1) & (pred_cls == 1)).sum())
-    tn = int(((real == 0) & (pred_cls == 0)).sum())
-    fp = int(((real == 0) & (pred_cls == 1)).sum())
-    fn = int(((real == 1) & (pred_cls == 0)).sum())
-    total = max(tp + tn + fp + fn, 1)
-    precision = tp / max(tp + fp, 1)
-    recall = tp / max(tp + fn, 1)
-    f1 = 2 * precision * recall / max(precision + recall, 1e-12)
-    return {"accuracy": (tp + tn) / total, "precision": precision, "recall": recall, "f1": f1, "tn": tn, "fp": fp, "fn": fn, "tp": tp}
-
-
 def render_confusion_matrix(values: dict[str, float], title: str) -> None:
     z = [[values["tn"], values["fp"]], [values["fn"], values["tp"]]]
     text = [[fmt_int(values["tn"]), fmt_int(values["fp"])], [fmt_int(values["fn"]), fmt_int(values["tp"])]]
@@ -413,7 +398,6 @@ table = baseline_table(df, cols)
 feature_importance = read_csv(FEATURE_IMPORTANCE_CSV)
 completude = read_csv(COMPLETUDE_CSV)
 balanceamento = read_csv(BALANCEAMENTO_CSV)
-predicoes = read_csv(PREDICOES_CSV)
 
 st.markdown(
     """
@@ -603,28 +587,10 @@ with tabs[4]:
         fixed = {"tn": int(rf[cols["cm_tn"]]), "fp": int(rf[cols["cm_fp"]]), "fn": int(rf[cols["cm_fn"]]), "tp": int(rf[cols["cm_tp"]])}
         render_confusion_matrix(fixed, "Matriz de confusão fixa - Random Forest, threshold 0,50")
 
-    if predicoes is None:
-        st.info("O ajuste dinâmico de threshold requer artefato de predições do holdout. Esta versão pública exibe a matriz e as métricas fixas do benchmark reportado no artigo.")
-    else:
-        st.markdown('<div class="section-title">Threshold dinâmico no holdout</div>', unsafe_allow_html=True)
-        threshold = st.slider("Threshold binário", min_value=0.10, max_value=0.90, value=0.50, step=0.01)
-        values = threshold_metrics(predicoes, threshold)
-        c1, c2, c3, c4 = st.columns(4)
-        with c1:
-            st.markdown(metric_card("Accuracy", values["accuracy"], "classificação auxiliar"), unsafe_allow_html=True)
-        with c2:
-            st.markdown(metric_card("Precision", values["precision"], "classe alta evasão"), unsafe_allow_html=True)
-        with c3:
-            st.markdown(metric_card("Recall", values["recall"], "classe alta evasão"), unsafe_allow_html=True)
-        with c4:
-            st.markdown(metric_card("F1", values["f1"], "equilíbrio precision/recall"), unsafe_allow_html=True)
-        render_confusion_matrix(values, f"Matriz dinâmica no threshold {fmt_decimal(threshold, 2)}")
-        sample = predicoes.sample(min(len(predicoes), 5000), random_state=42)
-        scatter = px.scatter(sample, x="y_real", y="y_pred", opacity=0.32, title="Amostra do holdout: valor real vs predição", labels={"y_real": "Taxa real", "y_pred": "Taxa predita"})
-        scatter.add_shape(type="line", x0=0, x1=1, y0=0, y1=1, line=dict(color="#f6d365", dash="dash"))
-        st.plotly_chart(apply_plot_style(scatter), width="stretch")
-        error_fig = px.histogram(predicoes, x="erro", nbins=60, title="Distribuição do erro de predição no holdout")
-        st.plotly_chart(apply_plot_style(error_fig), width="stretch")
+    st.info(
+        "Esta seção usa apenas métricas fixas e artefatos versionados. "
+        "Não há treino, ajuste de threshold ou recálculo do benchmark em runtime."
+    )
 
 with tabs[5]:
     st.markdown('<div class="section-title">Diagnósticos e Limites</div>', unsafe_allow_html=True)
@@ -681,7 +647,6 @@ with tabs[6]:
         (COMPLETUDE_MD, "Completude MD", "text/markdown"),
         (BALANCEAMENTO_CSV, "Balanceamento CSV", "text/csv"),
         (BALANCEAMENTO_MD, "Balanceamento MD", "text/markdown"),
-        (PREDICOES_CSV, "Predições holdout CSV", "text/csv"),
     ]
     for row in range(0, len(artifact_specs), 3):
         cols_download = st.columns(3)
