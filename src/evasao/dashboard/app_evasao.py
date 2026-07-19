@@ -17,9 +17,11 @@ COMPLETUDE_CSV = RESULTS_DIR / "diagnostico_completude_temporal.csv"
 COMPLETUDE_MD = RESULTS_DIR / "diagnostico_completude_temporal.md"
 BALANCEAMENTO_CSV = RESULTS_DIR / "diagnostico_balanceamento_classes.csv"
 BALANCEAMENTO_MD = RESULTS_DIR / "diagnostico_balanceamento_classes.md"
+PREDICOES_HOLDOUT_CSV = RESULTS_DIR / "predicoes_holdout_random_forest_sbie.csv"
 
 PUBLIC_URL = "https://appevasaosbie.streamlit.app/"
 REPO_URL = "https://github.com/EddieFerb/appevasao-sbie-deploy"
+ARTIFACTS_REPO_URL = "https://github.com/EddieFerb/sbie2026-evasao-ensino-superior-artefatos"
 INEP_URL = "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-da-educacao-superior"
 
 EXPECTED = {
@@ -403,6 +405,7 @@ def source_card_markup() -> str:
   <div class="section-title">Fonte dos dados</div>
   <p><strong>Fonte oficial:</strong> Microdados do Censo da Educação Superior — INEP/MEC.
   Os microdados públicos foram tratados e agregados para construção do benchmark temporal apresentado neste artigo.</p>
+  <p>Os microdados brutos oficiais do INEP/MEC não são redistribuídos por este app ou pelo repositório de artefatos. Devem ser obtidos diretamente nas fontes públicas oficiais.</p>
   <p style="margin-top:.65rem;"><a href="{INEP_URL}" target="_blank">Acessar página oficial dos Microdados do Censo da Educação Superior — INEP/MEC</a></p>
 </div>
 """
@@ -801,13 +804,21 @@ with tabs[6]:
     st.markdown(
         f"""
 <div class="glass-panel">
-  <p><strong>Repositório:</strong> <a href="{REPO_URL}" target="_blank">{REPO_URL}</a></p>
-  <p><strong>Aplicação:</strong> <a href="{PUBLIC_URL}" target="_blank">{PUBLIC_URL}</a></p>
-  <p style="margin-top:.65rem;">Este é um repositório minimalista de deploy. O pipeline científico completo não é publicado nesta versão por integrar artefato institucional em desenvolvimento. As métricas, variáveis, critérios de filtragem e divisão temporal estão descritos no artigo.</p>
+  <p><strong>Repositório do app/deploy:</strong> <a href="{REPO_URL}" target="_blank">{REPO_URL}</a></p>
+  <p><strong>Aplicação pública:</strong> <a href="{PUBLIC_URL}" target="_blank">{PUBLIC_URL}</a></p>
+  <p style="margin-top:.65rem;">Este repositório contém a aplicação pública AppEvasão em Streamlit e os arquivos mínimos necessários para visualização das evidências do benchmark temporal.</p>
+</div>
+<div class="glass-panel">
+  <div class="section-title">Pacote completo de artefatos suplementares</div>
+  <p>O pacote completo, auditável e versionado dos artefatos associados ao artigo SBIE 2026 está disponível no repositório oficial:</p>
+  <p><a href="{ARTIFACTS_REPO_URL}" target="_blank">{ARTIFACTS_REPO_URL}</a></p>
+  <p>Esse pacote reúne protocolo, condução e relato da revisão, planilha de extração dos 88 estudos primários, exportações e evidências do Rayyan, capturas de tela, tabelas consolidadas do benchmark temporal, documentação de disponibilidade dos dados, manifesto dos artefatos, arquivo de citação, licença e checksums.</p>
 </div>
 """,
         unsafe_allow_html=True,
     )
+    st.info("O AppEvasão funciona como vitrine demonstrativa e navegável das evidências principais do benchmark temporal. O repositório oficial de artefatos contém o pacote completo de materiais suplementares para auditoria, citação e reprodutibilidade metodológica.")
+
     artifact_specs = [
         (BENCHMARK_CSV, "Baixar CSV com comparação dos baselines", "text/csv"),
         (BENCHMARK_MD, "Baixar Markdown com comparação dos baselines", "text/markdown"),
@@ -818,6 +829,7 @@ with tabs[6]:
         (COMPLETUDE_MD, "Baixar Markdown de diagnóstico de completude", "text/markdown"),
         (BALANCEAMENTO_CSV, "Baixar CSV de balanceamento das classes", "text/csv"),
         (BALANCEAMENTO_MD, "Baixar Markdown de balanceamento das classes", "text/markdown"),
+        (PREDICOES_HOLDOUT_CSV, "Baixar CSV com predições do holdout Random Forest", "text/csv"),
     ]
     for row in range(0, len(artifact_specs), 3):
         cols_download = st.columns(3)

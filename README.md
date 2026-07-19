@@ -34,7 +34,7 @@ A interface foi organizada como narrativa científica:
 
 ## Fonte dos dados
 
-Fonte oficial: Microdados do Censo da Educação Superior — INEP/MEC. Os microdados públicos foram tratados e agregados para construção do benchmark temporal apresentado neste artigo.
+Fonte oficial: Microdados do Censo da Educação Superior — INEP/MEC. Os microdados públicos foram tratados e agregados para construção do benchmark temporal apresentado neste artigo. Os microdados brutos oficiais do INEP/MEC não são redistribuídos por este app ou pelo repositório de artefatos; devem ser obtidos diretamente nas fontes públicas oficiais.
 
 Link oficial:
 
@@ -83,7 +83,9 @@ Limitação conhecida: o Streamlit controla parte da semântica interna de abas 
 
 ## Escopo público
 
-Este é um repositório minimalista de deploy. O pipeline científico completo não é publicado nesta versão por integrar artefato institucional em desenvolvimento. As métricas, variáveis, critérios de filtragem e divisão temporal estão descritos no artigo.
+Este repositório contém a aplicação pública AppEvasão em Streamlit e apenas os arquivos mínimos necessários para sua execução. Ele funciona como vitrine demonstrativa e navegável das evidências principais do benchmark temporal.
+
+O pipeline científico completo não é publicado no repositório do app. O pacote completo de artefatos suplementares está disponível no repositório oficial de artefatos.
 
 Este repositório de deploy não inclui:
 
@@ -97,6 +99,21 @@ Este repositório de deploy não inclui:
 
 Ele contém apenas o app Streamlit e os artefatos consolidados necessários para exposição pública das evidências.
 
+
+## Artefatos suplementares
+
+Este repositório contém a aplicação pública AppEvasão em Streamlit e apenas os arquivos mínimos necessários para sua execução.
+
+O pacote completo, auditável e versionado dos artefatos suplementares do artigo SBIE 2026 está disponível em:
+
+```text
+https://github.com/EddieFerb/sbie2026-evasao-ensino-superior-artefatos
+```
+
+Esse pacote inclui protocolo, condução e relato da revisão, planilha de extração dos 88 estudos primários, exportações do Rayyan, evidências operacionais, capturas de tela, tabelas consolidadas do benchmark temporal, documentação de disponibilidade dos dados, manifesto dos artefatos, citação, licença e checksums.
+
+O manuscrito principal do artigo não é redistribuído neste repositório. A versão publicada deverá ser consultada nos anais oficiais do SBIE/CBIE, conforme a política editorial do evento.
+
 ## Artefatos incluídos
 
 ```text
@@ -109,4 +126,5 @@ modelos/resultados_modelos/diagnostico_completude_temporal.csv
 modelos/resultados_modelos/diagnostico_completude_temporal.md
 modelos/resultados_modelos/diagnostico_balanceamento_classes.csv
 modelos/resultados_modelos/diagnostico_balanceamento_classes.md
+modelos/resultados_modelos/predicoes_holdout_random_forest_sbie.csv
 ```

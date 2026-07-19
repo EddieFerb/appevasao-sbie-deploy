@@ -7,16 +7,16 @@ Media historica do treino               2018         199429        111328       
          Regressao Linear               2018         199429        111328                0.5  0.159527 0.217218 0.261746 0.068511  0.737856   0.738809 0.981088 0.842884   3862  27675   1509  78282            79791              105957
             Random Forest               2018         199429        111328                0.5  0.333705 0.177846 0.233052 0.054313  0.740416   0.809464 0.834167 0.821630  15870  15667  13232  66559            79791               82226
 
-CSV comparativo: /Users/eddieferb/streamlit-evasao-inep/modelos/resultados_modelos/comparacao_baselines_temporal.csv
-Markdown comparativo: /Users/eddieferb/streamlit-evasao-inep/modelos/resultados_modelos/comparacao_baselines_temporal.md
-Feature importance CSV: /Users/eddieferb/streamlit-evasao-inep/modelos/resultados_modelos/feature_importance_random_forest.csv
-Feature importance Markdown: /Users/eddieferb/streamlit-evasao-inep/modelos/resultados_modelos/feature_importance_random_forest.md
-Documentação metodológica: /Users/eddieferb/streamlit-evasao-inep/modelos/resultados_modelos/metodologia_temporal_antileakage.md
+CSV comparativo: modelos/resultados_modelos/comparacao_baselines_temporal.csv
+Markdown comparativo: modelos/resultados_modelos/comparacao_baselines_temporal.md
+Feature importance CSV: modelos/resultados_modelos/feature_importance_random_forest.csv
+Feature importance Markdown: modelos/resultados_modelos/feature_importance_random_forest.md
+Documentação metodológica: modelos/resultados_modelos/metodologia_temporal_antileakage.md
 
-Diagnóstico de completude CSV: /Users/eddieferb/streamlit-evasao-inep/modelos/resultados_modelos/diagnostico_completude_temporal.csv
-Diagnóstico de completude Markdown: /Users/eddieferb/streamlit-evasao-inep/modelos/resultados_modelos/diagnostico_completude_temporal.md
-Diagnóstico de balanceamento CSV: /Users/eddieferb/streamlit-evasao-inep/modelos/resultados_modelos/diagnostico_balanceamento_classes.csv
-Diagnóstico de balanceamento Markdown: /Users/eddieferb/streamlit-evasao-inep/modelos/resultados_modelos/diagnostico_balanceamento_classes.md
+Diagnóstico de completude CSV: modelos/resultados_modelos/diagnostico_completude_temporal.csv
+Diagnóstico de completude Markdown: modelos/resultados_modelos/diagnostico_completude_temporal.md
+Diagnóstico de balanceamento CSV: modelos/resultados_modelos/diagnostico_balanceamento_classes.csv
+Diagnóstico de balanceamento Markdown: modelos/resultados_modelos/diagnostico_balanceamento_classes.md
 
 === Classificação binária da evasão (threshold 0.50) ===
 Acurácia: 0.7404
